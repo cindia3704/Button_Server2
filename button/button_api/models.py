@@ -5,6 +5,13 @@ from django.db import models
 from multiselectfield import MultiSelectField
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager)
 import datetime
+
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+from django.urls import reverse
+
 # Create your models here.
 
 
@@ -127,3 +134,27 @@ class Cloth_Specific(models.Model):
 
     dateLastWorn = models.DateField(
         verbose_name='date Last Worn', default=datetime.date.today())
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
+
+
+# @receiver(reset_password_token_created)
+# def password_reset_token_created(instance, reset_password_token, sender=settings.AUTH_USER_MODEL, * args, **kwargs):
+
+#     email_plaintext_message = "{}?token={}".format(
+#         reverse('password_reset:reset-password-request'), reset_password_token.key)
+
+#     send_mail(
+#         # title:
+#         "Password Reset for {title}".format(title="Some website title"),
+#         # message:
+#         email_plaintext_message,
+#         # from:
+#         "noreply@somehost.local",
+#         # to:
+#         [reset_password_token.user.userEmail]
+#     )

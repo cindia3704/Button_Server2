@@ -38,12 +38,19 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    # 'rest_framework.authtoken',
+    'rest_framework.authtoken',
     'rest_auth',
     'button_api',
 ]
 
 AUTH_USER_MODEL = 'button_api.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -72,6 +79,7 @@ TEMPLATES = [
     },
 ]
 
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 WSGI_APPLICATION = 'button.wsgi.application'
 
 
@@ -123,3 +131,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

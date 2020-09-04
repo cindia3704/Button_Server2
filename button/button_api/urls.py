@@ -1,18 +1,24 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, login
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete
 from . import views
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     # 모든 사용자 리스트 보기
     path('user/', views.user_list),
     # 사용자 한명 info 보기 -- change info 가능
     path('user/<int:id>/', views.user_detail),
+    # 사용자 info 수정
+    path('user/<int:id>/changeInfo/', views.user_detail_change),
+    # 사용자 info 수정
+    path('user/<int:id>/delete/', views.user_delete),
     # 로그인
-    path('login/<userEmail>/<password>/', views.login),
+    path('login/', obtain_auth_token, name="login"),
+    #path('login/<userEmail>/<password>/', views.login),
     # 회원가입
     path('register/', views.register),
     # # 비번 바꾸기
-    # path('user/<int:id>/changePassword/'),
+    #path('user/<int:id>/changePassword/', ChangePasswordView.as_view()),
     # # 비번 찾기
     # path('user/findPassword/'),
     # 이메일 찾기
