@@ -14,7 +14,6 @@ urlpatterns = [
     path('user/<int:id>/delete/', views.user_delete),
     # 로그인
     path('login/', obtain_auth_token, name="login"),
-    #path('login/<userEmail>/<password>/', views.login),
     # 회원가입
     path('register/', views.register),
     # # 비번 바꾸기
