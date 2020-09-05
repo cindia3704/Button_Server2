@@ -30,10 +30,12 @@ class Cloth_SpecificSerializer(serializers.ModelSerializer):
     )
     season = serializers.MultipleChoiceField(choices=SEASON_CHOICES)
 
+    photo = serializers.ImageField(use_url=True)
+
     class Meta:
         model = Cloth_Specific
         fields = ['id', 'clothID', 'color', 'season',
-                  'category', 'dateBought', 'dateLastWorn']
+                  'category', 'dateBought', 'dateLastWorn', 'photo']
 
 
 # class ChangePasswordSerializer(serializers.Serializer):

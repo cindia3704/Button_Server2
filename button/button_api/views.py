@@ -145,6 +145,18 @@ def cloth_list(request, id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def cloth_category_list(request, id, category):
+    user = request.user
+    if id != user.id:
+        return Response({'response': "You don't have permission for access!"})
+    if request.method == 'GET':
+        closet = Cloth_Specific.objects.filter(id=id, category=category)
+        serializer = Cloth_SpecificSerializer(closet, many=True)
+        return Response(serializer.data)
+
+
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes((IsAuthenticated,))
 def cloth_detail(request, id, clothID):

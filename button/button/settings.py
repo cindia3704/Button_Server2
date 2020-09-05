@@ -25,7 +25,9 @@ SECRET_KEY = 'c5krd&=rdctqv7*o^7x(h4pig-gkngxa=c@&2d4#db$+$ut=t='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    # 'cindia3704.pythonanywhere.com'
+]
 
 
 # Application definition
@@ -134,4 +136,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

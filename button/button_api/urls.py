@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -27,6 +27,8 @@ urlpatterns = [
     # 옷의 세부 정보
     path('closet/<int:id>/<int:clothID>/', views.cloth_detail),
 
-
+    # 옷의 카테고리별로 보기
+    path('closet/<int:id>/<category>/', views.cloth_category_list),
+    
 
 ]

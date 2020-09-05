@@ -128,7 +128,7 @@ class Cloth_Specific(models.Model):
     )
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=10,
                                 default='ETC')
-
+    photo = models.ImageField(default='button/media/default.jpg')
     dateBought = models.DateField(
         verbose_name='date Bought', default=datetime.date.today())
 
@@ -158,3 +158,11 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 #         # to:
 #         [reset_password_token.user.userEmail]
 #     )
+
+# class CalendarOutfit(models.Model):
+#     owner = odels.ForeignKey(User, on_delete=models.CASCADE, verbose_name="User")
+
+
+# class Outfit(models.Model):
+#     owner = models.ForeignKey(
+#         User, on_delete=models.CASCADE, verbose_name="User")
