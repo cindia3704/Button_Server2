@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     # 'cindia3704.pythonanywhere.com'
+    '*',
 ]
 
 
