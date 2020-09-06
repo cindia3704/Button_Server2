@@ -51,7 +51,7 @@ def findEmail(request, userEmail):
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated,))
+# @permission_classes((IsAuthenticated,))
 def user_list(request):
     # 모든 사용자 보기 & 추가
     if request.method == 'GET':
