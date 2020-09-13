@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password
 
 
 class User_Serializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ['id', 'password', 'userEmail',
@@ -46,3 +47,11 @@ class Cloth_SpecificSerializer(serializers.ModelSerializer):
 #     """
 #     old_password = serializers.CharField(required=True)
 #     new_password = serializers.CharField(required=True)
+
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    #token = serializers.CharField(max_length=555)
+
+    class Meta:
+        model = User
+        fields = ['id', 'password', 'userEmail',
+                  'userNickName']

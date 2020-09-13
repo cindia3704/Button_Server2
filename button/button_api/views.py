@@ -8,13 +8,21 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, views
 from rest_framework.views import APIView
 from .models import UserManager, User, Cloth_Specific
-from .serializers import User_Serializer, Cloth_SpecificSerializer
+from .serializers import User_Serializer, Cloth_SpecificSerializer, ChangePasswordSerializer
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
+from .utils import Util
+from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse
+import jwt
+from django.conf import settings
+# from drf_yasg.utils import swagger_auto_schema
+# from drf_yasg import openapi
 
 from django.views.generic import View
 from django.shortcuts import redirect
@@ -26,7 +34,8 @@ from django.core.mail import send_mail, send_mass_mail
 @api_view(['POST'])
 def register(request):
     if request.method == 'POST':
-        serializer = User_Serializer(data=request.data)
+        user = request.data
+        serializer = User_Serializer(data=user)
         data = {}
         if serializer.is_valid():
             account = serializer.save()
@@ -34,11 +43,93 @@ def register(request):
             data['userEmail'] = account.userEmail
             data['userGender'] = account.userGender
             data['userNickName'] = account.userNickName
+            user_data = serializer.data
+            user__ = User.objects.get(userEmail=user_data['userEmail'])
             token = Token.objects.get(user=account).key
+            #token = RefreshToken.for_user(user__).access_token
             data['token'] = token
+
+            # token2 = RefreshToken.for_user(account).access_token
+            # data['token'] = token2
+            current_site = get_current_site(request).domain
+            relativeLink = reverse('email-verify')
+
+            absurl = 'http://'+current_site+relativeLink + \
+                "?email="+str(account.get_email())
+            email_body = "Hi "+str(account.get_nickname()) + \
+                ' Thank you for registering to out application "button"!!\nUse link below to verify your email\n '+absurl
+
+            data_ = {'email_body': email_body, 'to_email': str(account.get_email()),
+                     'email_subject': 'Verify your email'}
+            Util.send_email(data_)
+
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# def setPassword(request):
+#     if request.method == 'POST':
+#         user = request.data
+#         serializer = User_Serializer(data=user)
+#         data = {}
+#         if serializer.is_valid():
+#             account = serializer.save()
+#             data['response'] = "successfully registerd a new user"
+#             data['userEmail'] = account.userEmail
+#             data['userGender'] = account.userGender
+#             data['userNickName'] = account.userNickName
+#             user_data = serializer.data
+#             user__ = User.objects.get(userEmail=user_data['userEmail'])
+#             user__.set_password()
+#             token = Token.objects.get(user=account).key
+#             #token = RefreshToken.for_user(user__).access_token
+#             data['token'] = token
+
+#             # token2 = RefreshToken.for_user(account).access_token
+#             # data['token'] = token2
+#             current_site = get_current_site(request).domain
+#             relativeLink = reverse('email-verify')
+
+#             absurl = 'http://'+current_site+relativeLink + \
+#                 "?email="+str(account.get_email())
+#             email_body = "Hi "+str(account.get_nickname()) + \
+#                 ' Thank you for registering to out application "button"!!\nUse link below to verify your email\n '+absurl
+
+#             data_ = {'email_body': email_body, 'to_email': str(account.get_email()),
+#                      'email_subject': 'Verify your email'}
+#             Util.send_email(data_)
+
+#             return Response(data, status=status.HTTP_201_CREATED)
+#         else:
+#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# @api_view(['GET'])
+# def findPassword(request, userEmail):
+#     try:
+#         user = User.objects.filter(userEmail=userEmail)
+#     except User.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#         data = {}
+#     if request.method == 'GET':
+#         if (user):
+#             serializer = ChangePasswordSerializer(user)
+#             data_ = serializer.data
+#             password = str(data_['password'])
+#             nickName = str(data_['userNickName'])
+#             current_site = get_current_site(request).domain
+#             relativeLink = reverse('email-find')
+#             # absurl = 'http://'+current_site+relativeLink + \
+#             #     "?email="+str(account.get_email())
+#             email_body = "Hi "+str(nickName) + \
+#                 ' \nYour password is: '+str(password)
+
+#             data_ = {'email_body': email_body, 'to_email': str(userEmail),
+#                      'email_subject': 'Find your email'}
+#             Util.send_email(data_)
+#             return Response(data)
+#         else:
+#             return Response(data)
 
 
 @api_view(['GET'])
@@ -221,11 +312,17 @@ def cloth_detail(request, id, clothID):
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @api_view()
-# def null_view(request):
-#     return Response(status=status.HTTP_400_BAD_REQUEST)
+class VerifyEmail(views.APIView):
+    def get(self, request):
+        email = request.GET.get('email')
+        try:
+            user = User.objects.get(userEmail=email)
 
-
-# @api_view()
-# def complete_view(request):
-#     return Response("Email account is activated")
+            if not user.confirmedEmail:
+                user.confirmedEmail = True
+                user.save()
+            return Response({'email': 'Successfully activated'}, status=status.HTTP_201_CREATED)
+        except jwt.ExpiredSignatureError as identifier:
+            return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.exceptions.DecodeError as identifier:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
