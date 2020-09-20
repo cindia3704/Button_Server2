@@ -2,6 +2,7 @@ from django.core.mail import EmailMessage
 from django.core.mail import BadHeaderError, send_mail
 from django.core import mail
 from django.http import HttpResponse, HttpResponseRedirect
+from rest_framework.response import Response
 
 
 class Util:
@@ -12,4 +13,4 @@ class Util:
                 mail.EmailMessage(
                     subject=data['email_subject'], body=data['email_body'], to=[data['to_email']]).send()
         except BadHeaderError:
-            return HttpResponse('Invalid header found.')
+            return Response("email not sent"+BadHeaderError)
