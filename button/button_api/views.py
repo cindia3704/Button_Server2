@@ -175,7 +175,6 @@ def user_detail(request, id):
 
 
 @api_view(['PUT'])
-# @permission_classes((IsAuthenticated,))
 def user_detail_change(request, id):
     try:
         user_personal = User.objects.get(id=id)
@@ -216,8 +215,8 @@ def user_delete(request, id):
 @api_view(['GET', 'POST'])
 def cloth_list(request, id):
     user = request.user
-    if id != user.id:
-        return Response({'response': "You don't have permission for access!"})
+    # if id != user.id:
+    # return Response({'response': "You don't have permission for access!"})
     if request.method == 'GET':
         closet = Cloth_Specific.objects.filter(id=id)
         serializer = Cloth_SpecificSerializer(closet, many=True)
@@ -235,8 +234,8 @@ def cloth_list(request, id):
 @api_view(['GET'])
 def cloth_category_list(request, id, category):
     user = request.user
-    if id != user.id:
-        return Response({'response': "You don't have permission for access!"})
+    # if id != user.id:
+    # return Response({'response': "You don't have permission for access!"})
     if request.method == 'GET':
         closet = Cloth_Specific.objects.filter(id=id, category=category)
         serializer = Cloth_SpecificSerializer(closet, many=True)
@@ -252,8 +251,8 @@ def cloth_detail(request, id, clothID):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     user = request.user
-    if id != user:
-        return Response({'response': "You don't have permission for access!"})
+    # if id != user:
+    # return Response({'response': "You don't have permission for access!"})
 
     if request.method == 'GET':
         serializer = Cloth_SpecificSerializer(cloth)
