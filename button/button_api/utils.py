@@ -12,5 +12,5 @@ class Util:
             with mail.get_connection() as connection:
                 mail.EmailMessage(
                     subject=data['email_subject'], body=data['email_body'], to=[data['to_email']]).send()
-        except BadHeaderError:
-            return Response("email not sent"+BadHeaderError)
+        except Exception:
+            return Response("email not sent"+Exception)
