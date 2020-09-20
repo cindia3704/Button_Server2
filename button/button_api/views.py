@@ -46,7 +46,7 @@ def register(request):
             user_data = serializer.data
             user__ = User.objects.get(userEmail=user_data['userEmail'])
             token = Token.objects.get(user=account).key
-            #token = RefreshToken.for_user(user__).access_token
+            # token = RefreshToken.for_user(user__).access_token
             data['token'] = token
 
             # token2 = RefreshToken.for_user(account).access_token
@@ -234,7 +234,11 @@ def cloth_list(request, id):
 @api_view(['GET'])
 def cloth_category_list(request, id, category):
     user = request.user
+<<<<<<< HEAD
     # if id != user.id:
+=======
+   # if id != user.id:
+>>>>>>> 35aa25d... last last
     # return Response({'response': "You don't have permission for access!"})
     if request.method == 'GET':
         closet = Cloth_Specific.objects.filter(id=id, category=category)
@@ -251,6 +255,10 @@ def cloth_detail(request, id, clothID):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     user = request.user
+<<<<<<< HEAD
+=======
+
+>>>>>>> 35aa25d... last last
     # if id != user:
     # return Response({'response': "You don't have permission for access!"})
 
