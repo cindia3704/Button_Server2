@@ -142,7 +142,6 @@ def findEmail(request, userEmail):
 
 
 @api_view(['GET'])
-# @permission_classes((IsAuthenticated,))
 def user_list(request):
     # 모든 사용자 보기 & 추가
     if request.method == 'GET':
@@ -160,7 +159,6 @@ def user_list(request):
 
 
 @api_view(['GET'])
-# @permission_classes((IsAuthenticated,))
 def user_detail(request, id):
     try:
         user_personal = User.objects.get(id=id)
@@ -199,7 +197,6 @@ def user_detail_change(request, id):
 
 
 @api_view(['DELETE'])
-# @permission_classes((IsAuthenticated,))
 def user_delete(request, id):
     try:
         user_personal = User.objects.get(id=id)
@@ -217,7 +214,6 @@ def user_delete(request, id):
 
 
 @api_view(['GET', 'POST'])
-# @permission_classes((IsAuthenticated,))
 def cloth_list(request, id):
     user = request.user
     if id != user.id:
@@ -237,7 +233,6 @@ def cloth_list(request, id):
 
 
 @api_view(['GET'])
-# @permission_classes((IsAuthenticated,))
 def cloth_category_list(request, id, category):
     user = request.user
     if id != user.id:
@@ -249,7 +244,6 @@ def cloth_category_list(request, id, category):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-# @permission_classes((IsAuthenticated,))
 def cloth_detail(request, id, clothID):
     try:
         cloth = Cloth_Specific.objects.get(id=id, clothID=clothID)
