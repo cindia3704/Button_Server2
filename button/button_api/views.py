@@ -175,6 +175,7 @@ def user_detail(request, id):
 
 
 @api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
 def user_detail_change(request, id):
     try:
         user_personal = User.objects.get(id=id)
@@ -196,6 +197,7 @@ def user_detail_change(request, id):
 
 
 @api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
 def user_delete(request, id):
     try:
         user_personal = User.objects.get(id=id)
@@ -213,6 +215,7 @@ def user_delete(request, id):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes((IsAuthenticated,))
 def cloth_list(request, id):
     user = request.user
     # if id != user.id:
@@ -232,6 +235,7 @@ def cloth_list(request, id):
 
 
 @api_view(['GET'])
+@permission_classes((IsAuthenticated,))
 def cloth_category_list(request, id, category):
     user = request.user
 <<<<<<< HEAD
@@ -246,7 +250,8 @@ def cloth_category_list(request, id, category):
         return Response(serializer.data)
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
+@permission_classes((IsAuthenticated,))
 def cloth_detail(request, id, clothID):
     try:
         cloth = Cloth_Specific.objects.get(id=id, clothID=clothID)
@@ -272,7 +277,12 @@ def cloth_detail(request, id, clothID):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    elif request.method == 'PATCH':
+        serializer = Cloth_SpecificSerializer(cloth, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         cloth.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
