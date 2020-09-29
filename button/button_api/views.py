@@ -10,8 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, views
 from rest_framework.views import APIView
-from .models import UserManager, User, Cloth_Specific
-from .serializers import User_Serializer, Cloth_SpecificSerializer, ChangePasswordSerializer
+from .models import UserManager, User, Cloth_Specific, Outfit_Specific
+from .serializers import User_Serializer, Cloth_SpecificSerializer, ChangePasswordSerializer, OutfitSerializer
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
@@ -219,7 +219,11 @@ def user_delete(request, id):
 def cloth_list(request, id):
     user = request.user
     # if id != user.id:
+<<<<<<< HEAD
     # return Response({'response': "You don't have permission for access!"})
+=======
+    #     return Response({'response': "You don't have permission for access!"})
+>>>>>>> 391b1f7... change auth for clothlist
     if request.method == 'GET':
         closet = Cloth_Specific.objects.filter(id=id)
         serializer = Cloth_SpecificSerializer(closet, many=True)
@@ -239,11 +243,16 @@ def cloth_list(request, id):
 def cloth_category_list(request, id, category):
     user = request.user
 <<<<<<< HEAD
+<<<<<<< HEAD
     # if id != user.id:
 =======
    # if id != user.id:
 >>>>>>> 35aa25d... last last
     # return Response({'response': "You don't have permission for access!"})
+=======
+    # if id != user.id:
+    #     return Response({'response': "You don't have permission for access!"})
+>>>>>>> 391b1f7... change auth for clothlist
     if request.method == 'GET':
         closet = Cloth_Specific.objects.filter(id=id, category=category)
         serializer = Cloth_SpecificSerializer(closet, many=True)
@@ -263,9 +272,14 @@ def cloth_detail(request, id, clothID):
 <<<<<<< HEAD
 =======
 
+<<<<<<< HEAD
 >>>>>>> 35aa25d... last last
     # if id != user:
     # return Response({'response': "You don't have permission for access!"})
+=======
+    # if id != user:
+    #     return Response({'response': "You don't have permission for access!"})
+>>>>>>> 391b1f7... change auth for clothlist
 
     if request.method == 'GET':
         serializer = Cloth_SpecificSerializer(cloth)
@@ -288,6 +302,54 @@ def cloth_detail(request, id, clothID):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@api_view(['POST'])
+def saveOutfit(request, id):
+    user = request.user
+    # if id != user.id:
+    # return Response({'response': "You don't have permission for access!"})
+
+    # POST부분 authentication 추가!!!
+    if request.method == 'POST':
+        serializer = OutfitSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def outfit_list(request, id):
+    user = request.user
+    # if id != user.id:
+    # return Response({'response': "You don't have permission for access!"})
+    if request.method == 'GET':
+        outfit_closet = Outfit_Specific.objects.filter(id=id)
+        serializer = OutfitSerializer(outfit_closet, many=True)
+        return Response(serializer.data)
+
+
+@api_view(['PATCH', 'DELETE', 'GET'])
+def outfit_change(request, id, outfitID):
+    try:
+        outfit = Outfit_Specific.objects.get(id=id, outfitID=outfitID)
+
+    except Outfit_Specific.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    user = request.user
+    if request.method == 'PATCH':
+        serializer = OutfitSerializer(outfit, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        outfit.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    elif request.method == 'GET':
+        serializer = OutfitSerializer(outfit)
+        return Response(serializer.data)
 # class ChangePasswordView(generics.UpdateAPIView):
 #     """
 #     An endpoint for changing password.
@@ -337,3 +399,19 @@ class VerifyEmail(views.APIView):
             return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
         except jwt.exceptions.DecodeError as identifier:
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class AcceptFriendEmail(views.APIView):
+#     def get(self, request):
+#         email = request.GET.get('email')
+#         try:
+#             user = User.objects.get(userEmail=email)
+
+#             if not user.confirmedEmail:
+#                 user.confirmedEmail = True
+#                 user.save()
+#             return Response({'email': 'Successfully activated'}, status=status.HTTP_201_CREATED)
+#         except jwt.ExpiredSignatureError as identifier:
+#             return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
+#         except jwt.exceptions.DecodeError as identifier:
+#             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)

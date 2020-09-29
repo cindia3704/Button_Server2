@@ -106,6 +106,7 @@ class User(AbstractBaseUser):
 # class Profile(models.Model):
 #     user = models.OneToOneField(User)
 
+
 class Cloth_Specific(models.Model):
     id = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name="User")
@@ -131,12 +132,32 @@ class Cloth_Specific(models.Model):
     )
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=10,
                                 default='ETC')
-    photo = models.ImageField(default='button/media/default.jpg')
+    photo = models.ImageField(
+        default='button/media/default.jpg', null=True, blank=True)
     dateBought = models.DateField(
         verbose_name='date Bought', default=datetime.date.today())
 
     dateLastWorn = models.DateField(
         verbose_name='date Last Worn', default=datetime.date.today())
+
+    outfit = models.ManyToManyField(
+        'Outfit_Specific', related_name="clothes", blank=True)
+    # clothes = models.ManyToManyField(
+    # 'Clothes', related_name='outfit', blank=True)
+    # outfit = models.ForeignKey(to=Outfit_Specific, verbose_name="outfit",
+    #                            related_name="outfit_clothes", on_delete=models.PROTECT, null=True, blank=True)
+
+
+class Outfit_Specific(models.Model):
+    id = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="User")
+    outfitID = models.AutoField(primary_key=True,
+                                verbose_name="outfitID",
+                                unique=True)
+    outfitName = models.CharField(
+        max_length=64, verbose_name="outfit name", default='NONE')
+    # clothes = models.ManyToManyField(
+    #     'Cloth_Specific', related_name="outfit", blank=True)
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

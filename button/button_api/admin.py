@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from .models import Cloth_Specific
+from .models import Cloth_Specific, Outfit_Specific
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from .forms import UserAdminChangeForm, UserAdminCreationForm
@@ -44,5 +44,6 @@ admin.site.register(User, UserAdmin)
 
 admin.site.register(Cloth_Specific)
 
+admin.site.register(Outfit_Specific)
 # Remove Group Model from admin. We're not using it.
 admin.site.unregister(Group)

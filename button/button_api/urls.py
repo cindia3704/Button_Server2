@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
@@ -13,7 +13,7 @@ urlpatterns = [
     path('user/<int:id>/', views.user_detail),
     # 사용자 info 수정
     path('user/<int:id>/changeInfo/', views.user_detail_change),
-    # 사용자 info 수정
+    # 사용자 info 삭제
     path('user/<int:id>/delete/', views.user_delete),
     # 로그인
     path('login/', obtain_auth_token, name="login"),
@@ -30,23 +30,27 @@ urlpatterns = [
     path('user/findEmail/<userEmail>/', views.findEmail),
     # 한 사용자의 모든 옷 보여주기
     path('closet/<int:id>/', views.cloth_list),
+
     # 옷의 세부 정보
     path('closet/<int:id>/<int:clothID>/', views.cloth_detail),
 
     # 옷의 카테고리별로 보기 (GET)
     path('closet/<int:id>/<category>/', views.cloth_category_list),
 
-    # 추천알고리즘 통한 의상 추천 보기 (GET)
-    # path('<int:id>/recommend/ml')
-
     # 직접 코디한거 저장하기(POST)
-    # path('<int:id>/saveTryMyself/')
+    path('<int:id>/outfit/', views.saveOutfit),
 
     # 직접 코디한거 보기 (GET)
-    # path('<int:id>/recommend/mySelf/')
+    path('<int:id>/outfit/list/', views.outfit_list),
+
+    # 직접 코디한 outfit 수정(GET/PATCH/DELETE)
+    path('<int:id>/outfit/list/<int:outfitID>/', views.outfit_change)
 
     # 한동안 안입은 옷 보기 (GET)
     # path('<int:id>/recommend/outdated/')
+
+    # 추천알고리즘 통한 의상 추천 보기 (GET)
+    # path('<int:id>/recommend/ml')
 
     # 매일 뭐입는지 저장 (POST)
     # path('<int:id>/myfashiontoday/')
