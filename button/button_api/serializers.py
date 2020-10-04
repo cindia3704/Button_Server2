@@ -20,6 +20,12 @@ class User_Serializer(serializers.ModelSerializer):
         return user
 
 
+class User_Serializer2(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'userEmail']
+
+
 class Cloth_SpecificSerializer(serializers.ModelSerializer):
     SEASON_CHOICES = (
         ('SPRING', 'Spring'),

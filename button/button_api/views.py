@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework import status, views
 from rest_framework.views import APIView
 from .models import UserManager, User, Cloth_Specific, Outfit_Specific
-from .serializers import User_Serializer, Cloth_SpecificSerializer, ChangePasswordSerializer, OutfitSerializer
+from .serializers import User_Serializer, Cloth_SpecificSerializer, ChangePasswordSerializer, OutfitSerializer, User_Serializer2
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
@@ -139,6 +139,19 @@ def findEmail(request, userEmail):
             return Response({'exists': True})
         else:
             return Response({'exists': False})
+
+
+@api_view(['GET'])
+def retLoggedUser(request, userEmail):
+    try:
+        user_personal = User.objects.get(userEmail=userEmail)
+
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = User_Serializer2(user_personal)
+        return Response(serializer.data)
 
 
 @api_view(['GET'])

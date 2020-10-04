@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
@@ -17,15 +17,18 @@ urlpatterns = [
     path('user/<int:id>/delete/', views.user_delete),
     # 로그인
     path('login/', obtain_auth_token, name="login"),
+
+    # 로그인된 사용자 정보
+    path('login/<userEmail>/', views.retLoggedUser),
     # 회원가입
     path('register/', views.register),
     # 이메일 인증
     path('email-verify/', views.VerifyEmail.as_view(), name="email-verify"),
     # # 비번 바꾸기
-    #path('user/<int:id>/changePassword/', ChangePasswordView.as_view()),
+    # path('user/<int:id>/changePassword/', ChangePasswordView.as_view()),
     # # 비번 찾기
     # path('email-find/<userEmail>/', views.findPassword, name="email-find"),
-    #path('email-find', views.send_email_findPassword, name="email-find")
+    # path('email-find', views.send_email_findPassword, name="email-find")
     # 이메일 찾기
     path('user/findEmail/<userEmail>/', views.findEmail),
     # 한 사용자의 모든 옷 보여주기
