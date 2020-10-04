@@ -23,7 +23,7 @@ class User_Serializer(serializers.ModelSerializer):
 class User_Serializer2(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'userEmail']
+        fields = ['id', 'userEmail', 'confirmedEmail']
 
 
 class Cloth_SpecificSerializer(serializers.ModelSerializer):
