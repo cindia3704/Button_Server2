@@ -1,5 +1,5 @@
 from rest_framework import serializers, fields
-from .models import User, UserManager, Cloth_Specific, Outfit_Specific
+from .models import User, UserManager, Cloth_Specific, Outfit_Specific, Friend, KNN
 from django.contrib.auth.hashers import make_password
 
 
@@ -42,7 +42,7 @@ class Cloth_SpecificSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cloth_Specific
-        fields = ['id', 'clothID', 'color', 'season',
+        fields = ['id', 'clothID', 'season',
                   'category', 'dateBought', 'dateLastWorn', 'photo', 'outfit']
         extra_kwargs = {'outfit': {'required': False}}
 
@@ -53,8 +53,22 @@ class OutfitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Outfit_Specific
-        fields = ('id', 'outfitID', 'outfitName', 'clothes')
+        fields = ('id', 'outfitID', 'outfitName',
+                  'clothes')
         extra_kwargs = {'clothes': {'required': False}}
+
+
+class Friend_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Friend
+        fields = ('user', 'frienduser', 'accepted', 'timestamp')
+
+
+class KNN_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = KNN
+        fields = ('id', 'KNNID', 'place1', 'place2', 'meeting1',
+                  'meeting2', 'event1', 'event2', 'mood', 'style')
 
 # class ChangePasswordSerializer(serializers.Serializer):
 #     model = User
@@ -64,6 +78,14 @@ class OutfitSerializer(serializers.ModelSerializer):
 #     """
 #     old_password = serializers.CharField(required=True)
 #     new_password = serializers.CharField(required=True)
+
+
+# class Friend_Serializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Friend
+#         fields = ('to_user', 'from_user', 'timestamp')
+#         extra_kwargs = {'to_user': {'required': False},
+#                         'from_user': {'required': False}}
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):

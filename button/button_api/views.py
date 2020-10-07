@@ -10,9 +10,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, views
 from rest_framework.views import APIView
-from .models import UserManager, User, Cloth_Specific, Outfit_Specific
-from .serializers import User_Serializer, Cloth_SpecificSerializer, ChangePasswordSerializer, OutfitSerializer, User_Serializer2
+from .models import UserManager, User, Cloth_Specific, Outfit_Specific, Friend, KNN
+from .serializers import User_Serializer, Cloth_SpecificSerializer, ChangePasswordSerializer, OutfitSerializer, User_Serializer2, Friend_Serializer, KNN_Serializer
 from rest_framework import generics
+from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -31,7 +32,70 @@ from django.core.mail import send_mail, send_mass_mail
 # Create your views here.
 
 
+class FriendListPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        ownerID = view.kwargs.get('id', None)
+        owner = User.objects.get(id=ownerID)
+        friend = Friend.objects.filter(
+            frienduser=request.user, accepted=True, user=owner)
+
+        # if friend:
+        #     return True
+        # else:
+        #     return False
+        return friend
+
+
+class OwnerPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        ownerID = view.kwargs.get('id', None)
+        owner = User.objects.get(id=ownerID)
+        if request.user == owner:
+            return owner
+        # if friend:
+        #     return True
+        # else:
+        #     return False
+        else:
+            return None
+
+
 @api_view(['POST'])
+def post_userInput(request):
+    if request.method == 'POST':
+        serializer = KNN_Serializer(data=request.data)
+        if serializer.is_valid():
+            knn_input = serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def get_knnResult(request, KNNID):
+    try:
+        result = KNN.objects.get(KNNID=KNNID)
+
+    except KNN.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = KNN_Serializer(result)
+        return Response(serializer.data)
+
+
+# @api_view(['GET'])
+# def get_clothes_worn(request, id, datesWorn):
+#     try:
+#         cloth = Cloth_Specific.objects.filter(id=id, datesWorn=datesWorn)
+#     except Cloth_Specific.DoesNotExist:
+#         return Response({'response': 'none'})
+
+#     if request.method == 'GET':
+#         serializer = Cloth_SpecificSerializer(cloth)
+#         return Response(serializer.data)
+
+
+@ api_view(['POST'])
 def register(request):
     if request.method == 'POST':
         user = request.data
@@ -67,72 +131,71 @@ def register(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # def setPassword(request):
+    #     if request.method == 'POST':
+    #         user = request.data
+    #         serializer = User_Serializer(data=user)
+    #         data = {}
+    #         if serializer.is_valid():
+    #             account = serializer.save()
+    #             data['response'] = "successfully registerd a new user"
+    #             data['userEmail'] = account.userEmail
+    #             data['userGender'] = account.userGender
+    #             data['userNickName'] = account.userNickName
+    #             user_data = serializer.data
+    #             user__ = User.objects.get(userEmail=user_data['userEmail'])
+    #             user__.set_password()
+    #             token = Token.objects.get(user=account).key
+    #             #token = RefreshToken.for_user(user__).access_token
+    #             data['token'] = token
 
-# def setPassword(request):
-#     if request.method == 'POST':
-#         user = request.data
-#         serializer = User_Serializer(data=user)
-#         data = {}
-#         if serializer.is_valid():
-#             account = serializer.save()
-#             data['response'] = "successfully registerd a new user"
-#             data['userEmail'] = account.userEmail
-#             data['userGender'] = account.userGender
-#             data['userNickName'] = account.userNickName
-#             user_data = serializer.data
-#             user__ = User.objects.get(userEmail=user_data['userEmail'])
-#             user__.set_password()
-#             token = Token.objects.get(user=account).key
-#             #token = RefreshToken.for_user(user__).access_token
-#             data['token'] = token
+    #             # token2 = RefreshToken.for_user(account).access_token
+    #             # data['token'] = token2
+    #             current_site = get_current_site(request).domain
+    #             relativeLink = reverse('email-verify')
 
-#             # token2 = RefreshToken.for_user(account).access_token
-#             # data['token'] = token2
-#             current_site = get_current_site(request).domain
-#             relativeLink = reverse('email-verify')
+    #             absurl = 'http://'+current_site+relativeLink + \
+    #                 "?email="+str(account.get_email())
+    #             email_body = "Hi "+str(account.get_nickname()) + \
+    #                 ' Thank you for registering to out application "button"!!\nUse link below to verify your email\n '+absurl
 
-#             absurl = 'http://'+current_site+relativeLink + \
-#                 "?email="+str(account.get_email())
-#             email_body = "Hi "+str(account.get_nickname()) + \
-#                 ' Thank you for registering to out application "button"!!\nUse link below to verify your email\n '+absurl
+    #             data_ = {'email_body': email_body, 'to_email': str(account.get_email()),
+    #                      'email_subject': 'Verify your email'}
+    #             Util.send_email(data_)
 
-#             data_ = {'email_body': email_body, 'to_email': str(account.get_email()),
-#                      'email_subject': 'Verify your email'}
-#             Util.send_email(data_)
+    #             return Response(data, status=status.HTTP_201_CREATED)
+    #         else:
+    #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#             return Response(data, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @api_view(['GET'])
+    # def findPassword(request, userEmail):
+    #     try:
+    #         user = User.objects.filter(userEmail=userEmail)
+    #     except User.DoesNotExist:
+    #         return Response(status=status.HTTP_404_NOT_FOUND)
+    #         data = {}
+    #     if request.method == 'GET':
+    #         if (user):
+    #             serializer = ChangePasswordSerializer(user)
+    #             data_ = serializer.data
+    #             password = str(data_['password'])
+    #             nickName = str(data_['userNickName'])
+    #             current_site = get_current_site(request).domain
+    #             relativeLink = reverse('email-find')
+    #             # absurl = 'http://'+current_site+relativeLink + \
+    #             #     "?email="+str(account.get_email())
+    #             email_body = "Hi "+str(nickName) + \
+    #                 ' \nYour password is: '+str(password)
 
-# @api_view(['GET'])
-# def findPassword(request, userEmail):
-#     try:
-#         user = User.objects.filter(userEmail=userEmail)
-#     except User.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#         data = {}
-#     if request.method == 'GET':
-#         if (user):
-#             serializer = ChangePasswordSerializer(user)
-#             data_ = serializer.data
-#             password = str(data_['password'])
-#             nickName = str(data_['userNickName'])
-#             current_site = get_current_site(request).domain
-#             relativeLink = reverse('email-find')
-#             # absurl = 'http://'+current_site+relativeLink + \
-#             #     "?email="+str(account.get_email())
-#             email_body = "Hi "+str(nickName) + \
-#                 ' \nYour password is: '+str(password)
-
-#             data_ = {'email_body': email_body, 'to_email': str(userEmail),
-#                      'email_subject': 'Find your email'}
-#             Util.send_email(data_)
-#             return Response(data)
-#         else:
-#             return Response(data)
+    #             data_ = {'email_body': email_body, 'to_email': str(userEmail),
+    #                      'email_subject': 'Find your email'}
+    #             Util.send_email(data_)
+    #             return Response(data)
+    #         else:
+    #             return Response(data)
 
 
-@api_view(['GET'])
+@ api_view(['GET'])
 def findEmail(request, userEmail):
     if request.method == 'GET':
         if (User.objects.filter(userEmail=userEmail)):
@@ -141,7 +204,7 @@ def findEmail(request, userEmail):
             return Response({'exists': False})
 
 
-@api_view(['GET'])
+@ api_view(['GET'])
 def retLoggedUser(request, userEmail):
     try:
         user_personal = User.objects.get(userEmail=userEmail)
@@ -154,7 +217,7 @@ def retLoggedUser(request, userEmail):
         return Response(serializer.data)
 
 
-@api_view(['GET'])
+@ api_view(['GET'])
 def user_list(request):
     # 모든 사용자 보기 & 추가
     if request.method == 'GET':
@@ -171,7 +234,8 @@ def user_list(request):
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
+@ api_view(['GET'])
+@ permission_classes((IsAuthenticated, OwnerPermission))
 def user_detail(request, id):
     try:
         user_personal = User.objects.get(id=id)
@@ -187,8 +251,8 @@ def user_detail(request, id):
         return Response(serializer.data)
 
 
-@api_view(['PUT'])
-@permission_classes((IsAuthenticated,))
+@ api_view(['PATCH'])
+@ permission_classes((IsAuthenticated, OwnerPermission))
 def user_detail_change(request, id):
     try:
         user_personal = User.objects.get(id=id)
@@ -200,7 +264,7 @@ def user_detail_change(request, id):
     if user_personal.id != user.id:
         return Response({'response': "You don't have permission for access!"})
 
-    elif request.method == 'PUT':
+    elif request.method == 'PATCH':
         serializer = User_Serializer(user_personal, data=request.data)
         if serializer.is_valid():
 
@@ -209,8 +273,8 @@ def user_detail_change(request, id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['DELETE'])
-@permission_classes((IsAuthenticated,))
+@ api_view(['DELETE'])
+@ permission_classes((IsAuthenticated, OwnerPermission))
 def user_delete(request, id):
     try:
         user_personal = User.objects.get(id=id)
@@ -227,9 +291,11 @@ def user_delete(request, id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['GET', 'POST'])
-@permission_classes((IsAuthenticated,))
+@ api_view(['GET', 'POST'])
+@ permission_classes([FriendListPermission | OwnerPermission])
 def cloth_list(request, id):
+    def get_id():
+        return id
     user = request.user
     # if id != user.id:
 <<<<<<< HEAD
@@ -251,8 +317,8 @@ def cloth_list(request, id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-@permission_classes((IsAuthenticated,))
+@ api_view(['GET'])
+@ permission_classes([OwnerPermission | FriendListPermission])
 def cloth_category_list(request, id, category):
     user = request.user
 <<<<<<< HEAD
@@ -272,8 +338,8 @@ def cloth_category_list(request, id, category):
         return Response(serializer.data)
 
 
-@api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
-@permission_classes((IsAuthenticated,))
+@ api_view(['GET', 'PUT', 'DELETE', 'PATCH'])
+@ permission_classes([FriendListPermission | OwnerPermission])
 def cloth_detail(request, id, clothID):
     try:
         cloth = Cloth_Specific.objects.get(id=id, clothID=clothID)
@@ -315,7 +381,8 @@ def cloth_detail(request, id, clothID):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['POST'])
+@ api_view(['POST'])
+@ permission_classes([FriendListPermission | OwnerPermission])
 def saveOutfit(request, id):
     user = request.user
     # if id != user.id:
@@ -330,19 +397,59 @@ def saveOutfit(request, id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+<<<<<<< HEAD
 @api_view(['GET'])
+=======
+# @api_view['POST']
+# def save_friendship(request):
+#      if request.method == 'POST':
+#             serializer = Friend_Serializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# @ api_view(['GET'])
+# def friend_list(request, id):
+#     if request.method == 'GET':
+#         outfit_closet = Outfit_Specific.objects.filter(id=id)
+#         serializer = OutfitSerializer(outfit_closet, many=True)
+#         return Response(serializer.data)
+
+@ api_view(['GET'])
+<<<<<<< HEAD
+@ permission_classes([IsAuthenticated | FriendListPermission])
+>>>>>>> bcc7d00... add friend and friend permission
 def outfit_list(request, id):
     user = request.user
     # if id != user.id:
     # return Response({'response': "You don't have permission for access!"})
+=======
+@ permission_classes([FriendListPermission | OwnerPermission])
+def outfit_list(request, id):
+    user = request.user
+    # if id != user.id:
+    #     return Response({'response': "You don't have permission for access!"})
+>>>>>>> 376f70f... correct permissions
     if request.method == 'GET':
         outfit_closet = Outfit_Specific.objects.filter(id=id)
         serializer = OutfitSerializer(outfit_closet, many=True)
         return Response(serializer.data)
 
 
+<<<<<<< HEAD
 @api_view(['PATCH', 'DELETE', 'GET'])
+=======
+@ api_view(['PATCH', 'DELETE', 'GET'])
+<<<<<<< HEAD
+@ permission_classes([IsAuthenticated | FriendListPermission])
+>>>>>>> bcc7d00... add friend and friend permission
+=======
+@ permission_classes([FriendListPermission | OwnerPermission])
+>>>>>>> 376f70f... correct permissions
 def outfit_change(request, id, outfitID):
+    def get_id():
+        return id
     try:
         outfit = Outfit_Specific.objects.get(id=id, outfitID=outfitID)
 
@@ -363,6 +470,7 @@ def outfit_change(request, id, outfitID):
     elif request.method == 'GET':
         serializer = OutfitSerializer(outfit)
         return Response(serializer.data)
+
 # class ChangePasswordView(generics.UpdateAPIView):
 #     """
 #     An endpoint for changing password.
@@ -428,3 +536,126 @@ class VerifyEmail(views.APIView):
 #             return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
 #         except jwt.exceptions.DecodeError as identifier:
 #             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+
+@ api_view(['GET'])
+@ permission_classes((IsAuthenticated, OwnerPermission))
+def get_friendlist(request, id):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        friendList = Friend.objects.filter(user=user)
+        serializer = Friend_Serializer(friendList, many=True)
+        return Response(serializer.data)
+
+
+@ api_view(['GET', 'DELETE'])
+@ permission_classes((IsAuthenticated, OwnerPermission))
+def specific_friend(request, id, friendId):
+    try:
+        user = User.objects.get(id=id)
+        friend = User.objects.get(id=friendId)
+        friendspecific = Friend.objects.get(
+            user=user, accepted=True, frienduser=friend)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        serializer = Friend_Serializer(friendspecific)
+        return Response(serializer.data)
+    elif request.method == 'DELETE':
+        friendspecific.delete()
+        friend2 = Friend.objects.get(
+            user=friend, frienduser=user, accepted=True)
+        friend2.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@ api_view(['GET'])
+@ permission_classes((IsAuthenticated, OwnerPermission))
+def get_acceped_friendlist(request, id):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        friendList = Friend.objects.filter(user=user, accepted=True)
+        serializer = Friend_Serializer(friendList, many=True)
+        return Response(serializer.data)
+
+
+@ api_view(['POST'])
+@ permission_classes((IsAuthenticated, OwnerPermission))
+def send_friendRequest(request, id, userEmail):
+    try:
+        user = User.objects.get(id=id)
+        reciever = User.objects.get(userEmail=userEmail)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'POST':
+        if not Friend.objects.filter(frienduser=reciever).exists():
+            new_friend = Friend()
+            new_friend.user = User.objects.get(id=id)
+            new_friend.frienduser = User.objects.get(
+                userEmail=userEmail)
+            new_friend.save()
+        # user = User.objects.filter(id=id)
+        # reciever = User.objects.get(userEmail=userEmail)
+        # data = {}
+        # data['user'] =
+        # data['frienduser'] = reciever
+        # serializer = Friend_Serializer(data=data)
+        # if(serializer.is_valid()):
+        #     serializer.save()
+
+        # user = User.objects.get(id=id)
+            senderEmail = user.get_email()
+        # reciever = User.objects.get(userEmail=userEmail)
+            recieverEmail = userEmail
+
+            current_site = get_current_site(request).domain
+            relativeLink = reverse('verify-friend')
+
+            absurl = 'http://'+current_site+relativeLink + \
+                "?email="+str(recieverEmail)+"&sender="+str(senderEmail)
+            email_body = "Hi "+str(reciever.get_nickname()) + \
+                '\n'+str(user.get_nickname()) + \
+                " sent a friend request.\nAccept the request by clicking on the link below."+absurl
+
+            data_ = {'email_body': email_body, 'to_email': str(recieverEmail),
+                     'email_subject': 'Friend Request'}
+            Util.send_email(data_)
+
+            return Response({'email': 'Successfully sent'}, status=status.HTTP_201_CREATED)
+        elif Friend.objects.filter(frienduser=reciever).exists():
+            return Response({'email': 'already friend'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'email': 'ERROR'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyFriendRequest(views.APIView):
+    def get(self, request):
+        email = request.GET.get('email')
+        senderEmail = request.GET.get('sender')
+        print('email:'+str(email))
+        print('senderEmail:'+str(senderEmail))
+        try:
+            friendUser = User.objects.get(userEmail=email)
+            user = User.objects.get(userEmail=senderEmail)
+            friend = Friend.objects.get(
+                user=User.objects.get(userEmail=senderEmail), frienduser=User.objects.get(userEmail=email))
+            if not friend.accepted:
+                friend.accepted = True
+                friend.save()
+                new_friend = Friend()
+                new_friend.user = User.objects.get(userEmail=email)
+                new_friend.frienduser = User.objects.get(
+                    userEmail=senderEmail)
+                new_friend.accepted = True
+                new_friend.save()
+
+            return Response({'friendship': 'Successfully connected'}, status=status.HTTP_201_CREATED)
+        except jwt.ExpiredSignatureError as identifier:
+            return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.exceptions.DecodeError as identifier:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)

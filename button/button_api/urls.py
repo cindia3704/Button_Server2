@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
@@ -47,11 +47,16 @@ urlpatterns = [
     path('<int:id>/outfit/list/', views.outfit_list),
 
     # 직접 코디한 outfit 수정(GET/PATCH/DELETE)
-    path('<int:id>/outfit/list/<int:outfitID>/', views.outfit_change)
+    path('<int:id>/outfit/list/<int:outfitID>/', views.outfit_change),
 
     # 한동안 안입은 옷 보기 (GET)
     # path('<int:id>/recommend/outdated/')
 
+    # 추천알고리즘 사용자 input 올리기 (POST)
+    path('knn/', views.post_userInput),
+
+    # knn result 보기 (GET)
+    path('knn/<int:KNNID>/', views.get_knnResult),
     # 추천알고리즘 통한 의상 추천 보기 (GET)
     # path('<int:id>/recommend/ml')
 
@@ -59,13 +64,21 @@ urlpatterns = [
     # path('<int:id>/myfashiontoday/')
 
     # 그동안 뭐입었는지 보기 (GET)
-    # path('<int:id>/myfashion/')
+    #path('calendar/<int:id>/<datesWorn>/', views.get_clothes_worn),
 
-    # 친구리스트
+    # 친구리스트 모두 보기-- accept 안된 것도!
+    path('friendlist/<int:id>/', views.get_friendlist),
 
-    # 친구 한명꺼 들어가기(옷정보)
+    # 친구리스트 accept된것만 보기
+    path('friendlist/accepted/<int:id>/', views.get_acceped_friendlist),
 
-    # 친구 코디 저장
+    # 친구 상세정보 & 삭제하기
+    path('friendlist/<int:id>/<int:friendId>/', views.specific_friend),
+    # 친구 추가
+    path('<int:id>/addfriend/<userEmail>/', views.send_friendRequest),
+    # 친구 이메일 인증
+    path('verify-friend/', views.VerifyFriendRequest.as_view(), name="verify-friend")
+
 
 
 
