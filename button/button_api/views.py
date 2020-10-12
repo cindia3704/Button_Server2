@@ -235,7 +235,7 @@ def user_list(request):
 
 
 @ api_view(['GET'])
-@ permission_classes((IsAuthenticated, OwnerPermission))
+@ permission_classes([FriendListPermission | OwnerPermission])
 def user_detail(request, id):
     try:
         user_personal = User.objects.get(id=id)
@@ -244,8 +244,6 @@ def user_detail(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     user = request.user
-    if user_personal.id != user.id:
-        return Response({'response': "You don't have permission for access!"})
     if request.method == 'GET':
         serializer = User_Serializer(user_personal)
         return Response(serializer.data)
