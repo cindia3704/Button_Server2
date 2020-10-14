@@ -22,6 +22,9 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 import jwt
 from django.conf import settings
+from rest_framework.decorators import parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
+
 # from drf_yasg.utils import swagger_auto_schema
 # from drf_yasg import openapi
 
@@ -290,6 +293,7 @@ def user_delete(request, id):
 
 
 @ api_view(['GET', 'POST'])
+@ parser_classes([MultiPartParser])
 @ permission_classes([FriendListPermission | OwnerPermission])
 def cloth_list(request, id):
     def get_id():

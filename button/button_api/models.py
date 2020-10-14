@@ -137,7 +137,7 @@ class Cloth_Specific(models.Model):
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=10,
                                 default='ETC')
     photo = models.ImageField(
-        default='button/media/default.jpg', null=True, blank=True)
+        default='button/media/default.jpg')
     dateBought = models.DateField(
         verbose_name='date Bought', default=datetime.date.today())
 
