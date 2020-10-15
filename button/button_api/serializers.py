@@ -38,7 +38,7 @@ class Cloth_SpecificSerializer(serializers.ModelSerializer):
         choices=SEASON_CHOICES, required=False)
 
     photo = serializers.ImageField(
-        use_url=True, max_length=None)
+        use_url=True, max_length=None, blank=True, required=False)
 
     class Meta:
         model = Cloth_Specific
