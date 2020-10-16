@@ -24,10 +24,11 @@ import jwt
 from django.conf import settings
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
-
+from django.contrib.auth.hashers import make_password
 # from drf_yasg.utils import swagger_auto_schema
 # from drf_yasg import openapi
-
+import random
+import string
 from django.views.generic import View
 from django.shortcuts import redirect
 from django.contrib import messages
@@ -123,11 +124,11 @@ def register(request):
 
             absurl = 'http://'+current_site+relativeLink + \
                 "?email="+str(account.get_email())
-            email_body = "Hi "+str(account.get_nickname()) + \
-                ' Thank you for registering to out application "button"!!\nUse link below to verify your email\n '+absurl
+            email_body = ""+str(account.get_nickname()) + "님, 안녕하세요.\n"\
+                '저희 버튼에 회원가입을 해주셔서 감사합니다.\n아래 링크로 이메일 인증을 완료해주세요\n '+absurl
 
             data_ = {'email_body': email_body, 'to_email': str(account.get_email()),
-                     'email_subject': 'Verify your email'}
+                     'email_subject': '이메일 인증'}
             Util.send_email(data_)
 
             return Response(data, status=status.HTTP_201_CREATED)
@@ -205,6 +206,23 @@ def findEmail(request, userEmail):
             return Response({'exists': True})
         else:
             return Response({'exists': False})
+
+
+# @ api_view(['POST'])
+# @permission_classes(OwnerPermission)
+# def changePassword(request, id, changed):
+#     if user_personal.id != user.id:
+#         return Response({'response': "You don't have permission for access!"})
+#     if request.method == 'POST':
+#         try:
+#             user = User.objects.get(id=id)
+#         except User.DoesNotExist:
+#             return Response({'response': "no user found"}, status=status.HTTP_404_NOT_FOUND)
+#         if(user):
+#             password = changed
+#             user.set_password(password)
+#             user.save
+#             return Response({'response': "password changed successfully"}, status=status.HTTP_201_CREATED)
 
 
 @ api_view(['GET'])
@@ -317,6 +335,114 @@ def cloth_list(request, id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@ api_view(['POST'])
+@ permission_classes([OwnerPermission])
+def change_password(request, id):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'POST':
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            if not user.check_password(serializer.data.get("password")):
+                print(serializer.data.get("password"))
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                # passs = make_password(request.data.get('newPassword'))
+                print(request.data.get('newPassword'))
+                user.set_password(request.data.get('newPassword'))
+                user.save()
+                # user.make_password(
+                #     serializer.data.get("new_password"))
+                # user.save()
+                return Response({"password": "Successfully updated password"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@ api_view(['POST'])
+def find_password(request, userEmail):
+    try:
+        user = User.objects.get(userEmail=userEmail)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'POST':
+        current_site = get_current_site(request).domain
+        newPass = letters = string.ascii_lowercase
+        result_str = ''.join(random.choice(letters) for i in range(10))
+        print(result_str)
+        email_body = ""+str(user.get_nickname()) + \
+            ' 님 안녕하세요.\n임시 비밀번호: '+result_str+'\n로그인을 한 후 반드시 비밀번호를 변경해 주시기 바랍니다.'
+
+        data_ = {'email_body': email_body, 'to_email': str(user.get_email()),
+                 'email_subject': '비밀번호 찾기'}
+        Util.send_email(data_)
+        user.set_password(result_str)
+        user.save()
+        return Response({'response': 'email successfully sent'}, status=status.HTTP_201_CREATED)
+    else:
+        return Response({'response': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@ api_view(['POST'])
+@ permission_classes([FriendListPermission | OwnerPermission])
+def outfit_cloth_add(request, id, outfitID, clothID):
+    try:
+        outfit_ = Outfit_Specific.objects.get(outfitID=outfitID)
+        cloth = Cloth_Specific.objects.get(clothID=clothID)
+    except Outfit_Specific.DoesNotExist:
+        # print('outfit not found')
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except Cloth_Specific.DoesNotExist:
+       # print('cloth not found')
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'POST':
+        cloth.outfit.add(outfitID)
+        cloth.save()
+    return Response(status=status.HTTP_201_CREATED)
+
+
+@ api_view(['DELETE'])
+@ permission_classes([FriendListPermission | OwnerPermission])
+def outfit_cloth_del(request, id, outfitID, clothID):
+    try:
+        outfit_ = Outfit_Specific.objects.get(outfitID=outfitID)
+        cloth = Cloth_Specific.objects.get(clothID=clothID)
+    except Outfit_Specific.DoesNotExist:
+        print('outfit not found')
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except Cloth_Specific.DoesNotExist:
+        print('cloth not found')
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'DELETE':
+        del_ = cloth.outfit.get(outfitID=outfitID)
+        cloth.outfit.remove(outfitID)
+        cloth.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+
+@ api_view(['PATCH'])
+@ permission_classes([FriendListPermission | OwnerPermission])
+def outfit_cloth_change(request, id, outfitID, clothID1, clothID2):
+    try:
+        outfit_ = Outfit_Specific.objects.get(outfitID=outfitID)
+        cloth1 = Cloth_Specific.objects.get(clothID=clothID1)
+        cloth2 = Cloth_Specific.objects.get(clothID=clothID2)
+    except Outfit_Specific.DoesNotExist:
+        print('outfit not found')
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except Cloth_Specific.DoesNotExist:
+        print('cloth not found')
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'PATCH':
+        cloth1.outfit.remove(outfitID)
+        cloth2.outfit.add(outfitID)
+        cloth1.save()
+        cloth2.save()
+        return Response(status=status.HTTP_201_CREATED)
 
 
 @ api_view(['GET'])
@@ -620,12 +746,12 @@ def send_friendRequest(request, id, userEmail):
 
             absurl = 'http://'+current_site+relativeLink + \
                 "?email="+str(recieverEmail)+"&sender="+str(senderEmail)
-            email_body = "Hi "+str(reciever.get_nickname()) + \
-                '\n'+str(user.get_nickname()) + \
-                " sent a friend request.\nAccept the request by clicking on the link below."+absurl
+            email_body = ""+str(reciever.get_nickname()) + "님, 안녕하세요.\n" \
+                + str(user.get_nickname()) + \
+                "님이 친구 요청을 보냈습니다.\n아래 링크를 클릭해 친구요청을 수락해주세요.\n"+absurl
 
             data_ = {'email_body': email_body, 'to_email': str(recieverEmail),
-                     'email_subject': 'Friend Request'}
+                     'email_subject': '친구 요청'}
             Util.send_email(data_)
 
             return Response({'email': 'Successfully sent'}, status=status.HTTP_201_CREATED)

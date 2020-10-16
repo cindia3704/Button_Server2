@@ -68,6 +68,8 @@ class User(AbstractBaseUser):
                                   default='ETC')
     dateRegistered = models.DateTimeField(
         auto_now_add=True)
+    photo = models.ImageField(
+        default='button/media/default.jpg', null=True, blank=True)
     # friendlist = models.ManyToManyField(
     #     'Friend', related_name="friend_users", blank=True)
     USERNAME_FIELD = 'userEmail'
@@ -137,7 +139,7 @@ class Cloth_Specific(models.Model):
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=10,
                                 default='ETC')
     photo = models.ImageField(
-        default='button/media/default.jpg',null=True,blank=True)
+        default='button/media/default.jpg', null=True, blank=True)
     dateBought = models.DateField(
         verbose_name='date Bought', default=datetime.date.today())
 

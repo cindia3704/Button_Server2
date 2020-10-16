@@ -4,10 +4,13 @@ from django.contrib.auth.hashers import make_password
 
 
 class User_Serializer(serializers.ModelSerializer):
+    photo = serializers.ImageField(
+        use_url=True, max_length=None, required=False)
+
     class Meta:
         model = User
         fields = ['id', 'password', 'userEmail',
-                  'userNickName', 'userGender', 'dateRegistered', 'confirmedEmail']
+                  'userNickName', 'userGender', 'dateRegistered', 'confirmedEmail', 'photo']
 
     def create(self, validated_data):
         user = User.objects.create(
@@ -24,6 +27,12 @@ class User_Serializer2(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'userEmail', 'confirmedEmail']
+
+
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        password = serializers.CharField(required=True)
+        newPassword = serializers.CharField(required=True)
 
 
 class Cloth_SpecificSerializer(serializers.ModelSerializer):

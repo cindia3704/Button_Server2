@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
@@ -25,9 +25,9 @@ urlpatterns = [
     # 이메일 인증
     path('email-verify/', views.VerifyEmail.as_view(), name="email-verify"),
     # # 비번 바꾸기
-    # path('user/<int:id>/changePassword/', ChangePasswordView.as_view()),
-    # # 비번 찾기
-    # path('email-find/<userEmail>/', views.findPassword, name="email-find"),
+    # path('user/<int:id>/changePassword/<changed>/', views.changePassword),
+    # 비번 찾기
+    path('passwordfind/<userEmail>/', views.find_password, name="find-password"),
     # path('email-find', views.send_email_findPassword, name="email-find")
     # 이메일 찾기
     path('user/findEmail/<userEmail>/', views.findEmail),
@@ -59,12 +59,19 @@ urlpatterns = [
     path('knn/<int:KNNID>/', views.get_knnResult),
     # 추천알고리즘 통한 의상 추천 보기 (GET)
     # path('<int:id>/recommend/ml')
-
+    # outfitID 에 clothID 옷 추가
+    path('<int:id>/<int:outfitID>/addcloth/<int:clothID>/', views.outfit_cloth_add),
+    # outfitID 에 clothID 옷 삭제
+    path('<int:id>/<int:outfitID>/delcloth/<int:clothID>/', views.outfit_cloth_del),
+    # outfitID에 있는 clothID1 을 clothID2로 바꾼다.
+    path('<int:id>/<int:outfitID>/changecloth/<int:clothID1>/to/<int:clothID2>/',
+         views.outfit_cloth_change),
+    path('<int:id>/changepassword/', views.change_password),
     # 매일 뭐입는지 저장 (POST)
     # path('<int:id>/myfashiontoday/')
-
+    # path('<int:id>/myfashiontoday/<date')
     # 그동안 뭐입었는지 보기 (GET)
-    #path('calendar/<int:id>/<datesWorn>/', views.get_clothes_worn),
+    # path('calendar/<int:id>/<datesWorn>/', views.get_clothes_worn),
 
     # 친구리스트 모두 보기-- accept 안된 것도!
     path('friendlist/<int:id>/', views.get_friendlist),
@@ -78,8 +85,6 @@ urlpatterns = [
     path('<int:id>/addfriend/<userEmail>/', views.send_friendRequest),
     # 친구 이메일 인증
     path('verify-friend/', views.VerifyFriendRequest.as_view(), name="verify-friend")
-
-
 
 
 ]
