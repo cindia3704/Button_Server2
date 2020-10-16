@@ -755,7 +755,9 @@ def send_friendRequest(request, id, userEmail):
             Util.send_email(data_)
 
             return Response({'email': 'Successfully sent'}, status=status.HTTP_201_CREATED)
-        elif Friend.objects.filter(frienduser=reciever).exists():
+        elif Friend.objects.filter(frienduser=reciever, accepted=False).exists():
+            return Response({'email': 'already sent request'}, status=status.HTTP_400_BAD_REQUEST)
+        elif Friend.objects.filter(frienduser=reciever, accepted=True).exists():
             return Response({'email': 'already friend'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'email': 'ERROR'}, status=status.HTTP_400_BAD_REQUEST)
