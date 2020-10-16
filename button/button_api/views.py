@@ -719,7 +719,7 @@ def send_friendRequest(request, id, userEmail):
         user = User.objects.get(id=id)
         reciever = User.objects.get(userEmail=userEmail)
     except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({'email': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
         if not Friend.objects.filter(frienduser=reciever).exists():
             new_friend = Friend()
