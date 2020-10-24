@@ -33,8 +33,8 @@ from django.views.generic import View
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.mail import send_mail, send_mass_mail
-from .knn import knn_results
-from . import knn
+#from .knn import knn_results
+#from . import knn
 # Create your views here.
 
 
@@ -77,9 +77,9 @@ def post_userInput(request):
         people1 = request.data.get('people1')
         people2 = request.data.get('people2')
         mood = request.data.get('mood')
-        style_res = knn_results(
-            place1, place2, event1, event2, people1, people2, mood)
-        request.data['style'] = style_res
+        # style_res = knn_results(
+        #    place1, place2, event1, event2, people1, people2, mood)
+        #request.data['style'] = style_res
         # knn_mod = KNN.objects.get(KNNID=serializer.data.get('KNNID'))
         # print(knn_mod)
         serializer = KNN_Serializer(data=request.data)
