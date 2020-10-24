@@ -525,12 +525,20 @@ def cloth_detail(request, id, clothID):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
+        outfits = Outfit_Specific.objects.filter(clothes=clothID)
+        print("hihihihi")
+        print(outfits)
+        for out in outfits:
+            out.delete()
+
         cloth.delete()
-        outfitIDS = cloth.get_outfit()
-        #outfits =[]
-        for i in outfitIDS:
-            outfit = Outfit_Specific.objects.get(id=i)
-            outfit.delete()
+        # outfitIDS = cloth.get_outfit()
+        # print(outfitIDS)
+        # #outfits =[]
+        # for i in outfitIDS:
+        #     outfit = Outfit_Specific.objects.get(id=i)
+        #     print(outfit)
+        #     outfit.delete()
 
         # for out in outfits:
         #     out.delete()
