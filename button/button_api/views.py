@@ -33,6 +33,8 @@ from django.views.generic import View
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.mail import send_mail, send_mass_mail
+from .knn import knn_results
+from . import knn
 # Create your views here.
 
 
@@ -67,9 +69,27 @@ class OwnerPermission(permissions.BasePermission):
 @api_view(['POST'])
 def post_userInput(request):
     if request.method == 'POST':
+        # knn_input = serializer.save()
+        place1 = request.data.get('place1')
+        place2 = request.data.get('place2')
+        event1 = request.data.get('event1')
+        event2 = request.data.get('event2')
+        people1 = request.data.get('people1')
+        people2 = request.data.get('people2')
+        mood = request.data.get('mood')
+        style_res = knn_results(
+            place1, place2, event1, event2, people1, people2, mood)
+        request.data['style'] = style_res
+        # knn_mod = KNN.objects.get(KNNID=serializer.data.get('KNNID'))
+        # print(knn_mod)
         serializer = KNN_Serializer(data=request.data)
         if serializer.is_valid():
-            knn_input = serializer.save()
+            serializer.save()
+            # knn_data = serializer.data
+            # knn_data['style'] = style_res
+            # print(style_res)
+            # print("---")
+            # knn_input.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -506,6 +526,10 @@ def cloth_detail(request, id, clothID):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         cloth.delete()
+        outfitIDS = cloth.get_outfit()
+        outfits = Outfit_Specific.objects.filter(id=outfitIDS)
+        for out in outfits:
+            out.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -755,9 +779,9 @@ def send_friendRequest(request, id, userEmail):
             Util.send_email(data_)
 
             return Response({'email': 'Successfully sent'}, status=status.HTTP_201_CREATED)
-        elif Friend.objects.filter(frienduser=reciever, accepted=False).exists():
+        elif Friend.objects.filter(user=user, frienduser=reciever, accepted=False).exists():
             return Response({'email': 'already sent request'}, status=status.HTTP_400_BAD_REQUEST)
-        elif Friend.objects.filter(frienduser=reciever, accepted=True).exists():
+        elif Friend.objects.filter(user=user, frienduser=reciever, accepted=True).exists():
             return Response({'email': 'already friend'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'email': 'ERROR'}, status=status.HTTP_400_BAD_REQUEST)

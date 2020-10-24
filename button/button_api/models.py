@@ -153,7 +153,8 @@ class Cloth_Specific(models.Model):
     # 'Clothes', related_name='outfit', blank=True)
     # outfit = models.ForeignKey(to=Outfit_Specific, verbose_name="outfit",
     #                            related_name="outfit_clothes", on_delete=models.PROTECT, null=True, blank=True)
-
+    def get_outfit(self):
+        return outfit
 
 class Outfit_Specific(models.Model):
     id = models.ForeignKey(
@@ -175,14 +176,25 @@ class KNN(models.Model):
     KNNID = models.AutoField(primary_key=True,
                              verbose_name="knn ID",
                              unique=True)
+    SEASON_CHOICES = (
+        ('SPRING', 'Spring'),
+        ('SUMMER', 'Summer'),
+        ('FALL', 'Fall'),
+        ('WINTER', 'Winter'),
+        ('ETC', 'etc'),
+    )
+    season = MultiSelectField(choices=SEASON_CHOICES, default='ETC')
     place1 = models.IntegerField(default=1, verbose_name="place 1")
     place2 = models.IntegerField(default=0, verbose_name="place 2")
-    meeting1 = models.IntegerField(default=1, verbose_name="meeting 1")
-    meeting2 = models.IntegerField(default=0, verbose_name="meeting 2")
+    people1 = models.IntegerField(default=1, verbose_name="meeting 1")
+    people2 = models.IntegerField(default=0, verbose_name="meeting 2")
     event1 = models.IntegerField(default=1, verbose_name="event 1")
     event2 = models.IntegerField(default=0, verbose_name="event 2")
     mood = models.IntegerField(default=1, verbose_name="mood")
-    style = models.IntegerField(default=1, verbose_name="style", null=True)
+    style = models.CharField(max_length=64, verbose_name="style", null=True)
+
+    def set_style(self, styleName):
+        style = styleName
 
 
 class Friend(models.Model):
