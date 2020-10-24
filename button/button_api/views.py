@@ -527,9 +527,13 @@ def cloth_detail(request, id, clothID):
     elif request.method == 'DELETE':
         cloth.delete()
         outfitIDS = cloth.get_outfit()
-        outfits = Outfit_Specific.objects.filter(id=outfitIDS)
-        for out in outfits:
-            out.delete()
+        #outfits =[]
+        for i in outfitIDS:
+            outfit = Outfit_Specific.objects.get(id=i)
+            outfit.delete()
+
+        # for out in outfits:
+        #     out.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
