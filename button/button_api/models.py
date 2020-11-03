@@ -209,14 +209,14 @@ class KNN(models.Model):
     KNNID = models.AutoField(primary_key=True,
                              verbose_name="knn ID",
                              unique=True)
-    SEASON_CHOICES = (
-        ('SPRING', 'Spring'),
-        ('SUMMER', 'Summer'),
-        ('FALL', 'Fall'),
-        ('WINTER', 'Winter'),
-        ('ETC', 'etc'),
-    )
-    season = MultiSelectField(choices=SEASON_CHOICES, default='ETC')
+    # SEASON_CHOICES = (
+    #     ('SPRING', 'Spring'),
+    #     ('SUMMER', 'Summer'),
+    #     ('FALL', 'Fall'),
+    #     ('WINTER', 'Winter'),
+    #     ('ETC', 'etc'),
+    # )
+    # season = MultiSelectField(choices=SEASON_CHOICES, default='ETC')
     place1 = models.IntegerField(default=1, verbose_name="place 1")
     place2 = models.IntegerField(default=0, verbose_name="place 2")
     people1 = models.IntegerField(default=1, verbose_name="meeting 1")
