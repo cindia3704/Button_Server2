@@ -36,6 +36,10 @@ from django.core.mail import send_mail, send_mass_mail
 from .knn import knn_results
 from . import knn
 import datetime
+# from .. import model
+# from .. import polyvore
+# from .. import data
+# from ..polyvore import run_inference, set_generation
 # Create your views here.
 
 
@@ -79,6 +83,7 @@ def post_userInput(request):
         people1 = request.data.get('people1')
         people2 = request.data.get('people2')
         mood = request.data.get('mood')
+        season = request.data.get('season')
         style_res = knn_results(
             place1, place2, event1, event2, people1, people2, mood)
         request.data['style'] = style_res
@@ -92,39 +97,39 @@ def post_userInput(request):
             print(style_res)
             print("---")
             knn_input.save()
-            ret_result = False
-            while ret_result != True:
-                rand_cloth = get_randomCloth(id, style_res)
-                if rand_cloth == "does not exist":
-                    return Response({"response": "not enough clothes"})
-                print(rand_cloth)
-                bi_lstm_input = rand_cloth.get_photo()
-                print(bi_lstm_input)
-                #bi_lstm_output = set_generation(bi_lstm_input, id)
-                bi_lstm_output = ["57.jpg", "106.jpg", "121.jpg"]
-                bi_lstm_result = []
-                for cloth_result in bi_lstm_output:
-                    print(cloth_result)
-                    bi_lstm_result.append(
-                        Cloth_Specific.objects.get(id=id, photo=cloth_result))
-                print("++++")
-                if rand_cloth.get_category() == "TOP":
-                    print("TOP")
-                    result = is_valid_outfit_top(
-                        bi_lstm_result[::-1], id, rand_cloth)
-                    print(ret_result)
-                    if result == "redo":
-                        ret_result = False
-                    else:
-                        ret_result = True
-                else:
-                    result = is_valid_outfit_dress(
-                        bi_lstm_result[::-1], id, rand_cloth)
-                    print(ret_result)
-                    ret_result = True
-            ret_serializer = Cloth_SpecificSerializer(result, many=True)
-        return Response(ret_serializer.data, status=status.HTTP_201_CREATED)
-    return Response(ret_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # ret_result = False
+            # while ret_result != True:
+            #     rand_cloth = get_randomCloth(id, style_res)
+            #     if rand_cloth == "does not exist":
+            #         return Response({"response": "not enough clothes"})
+            #     print(rand_cloth)
+            #     bi_lstm_input = rand_cloth.get_photo()
+            #     print(bi_lstm_input)
+            #     #bi_lstm_output = set_generation(bi_lstm_input, id)
+            #     bi_lstm_output = ["57.jpg", "106.jpg", "121.jpg"]
+            #     bi_lstm_result = []
+            #     for cloth_result in bi_lstm_output:
+            #         print(cloth_result)
+            #         bi_lstm_result.append(
+            #             Cloth_Specific.objects.get(id=id, photo=cloth_result))
+            #     print("++++")
+            #     if rand_cloth.get_category() == "TOP":
+            #         print("TOP")
+            #         result = is_valid_outfit_top(
+            #             bi_lstm_result[::-1], id, rand_cloth)
+            #         print(ret_result)
+            #         if result == "redo":
+            #             ret_result = False
+            #         else:
+            #             ret_result = True
+            #     else:
+            #         result = is_valid_outfit_dress(
+            #             bi_lstm_result[::-1], id, rand_cloth)
+            #         print(ret_result)
+            #         ret_result = True
+            # ret_serializer = Cloth_SpecificSerializer(result, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
 
@@ -437,6 +442,14 @@ def cloth_list_season(request, id, season):
         serializer = Cloth_SpecificSerializer(clo, many=True)
         print(serializer)
         return Response(serializer.data)
+
+
+@ api_view(['GET'])
+@ parser_classes([MultiPartParser])
+@ permission_classes([FriendListPermission | OwnerPermission])
+def cloth_list_season(request, id, days_not_worn):
+    if request.method == 'GET':
+        closet = Cloth_Specific.objects.filter(id=id)
 
 
 @ api_view(['POST'])
@@ -891,6 +904,9 @@ def saveToCalendar(request, id, outfitID, year, month, day):
             # outfit.date_worn.add(
             # Calendar_Specific.objects.get(id=id, date=date_))
             # outfit.save()
+            count = outfit.get_count()+1
+            outfit.count = count
+            outfit.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -919,6 +935,8 @@ def getCalendar_specific_date(request, id, year, month, day):
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
+        calendar.outfit_worn.count = calendar.outfit_worn.get_count()-1
+        calendar.outfit_worn.save()
         calendar.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -941,7 +959,12 @@ def change_Outfit_Calendar(request, id, calendarID, outfitID):
     except Outfit_Specific.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
+        cal.outfit_worn.count = cal.outfit_worn.get_count()-1
+        cal.save()
+        cal.outfit_worn.save()
         cal.outfit_worn = outfit
+        outfit.count = outfit.get_count()+1
+        outfit.save()
         cal.save()
         return Response(status=status.HTTP_201_CREATED)
 
@@ -962,6 +985,33 @@ def getCalendar_all(request, id):
         return Response(serializer.data)
 
 
+@ api_view(['GET'])
+@ permission_classes([IsAuthenticated | OwnerPermission])
+def outfit_stats_best5(request, id):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        outfit_list = Outfit_Specific.objects.filter(id=id).order_by('count')
+        # best_worn = sorted(outfit_list, key=(lambda x: x['count']))
+        outfit_list_ = outfit_list[::-1]
+        serializer = OutfitSerializer(outfit_list_[:4], many=True)
+        return Response(serializer.data)
+
+
+@ api_view(['GET'])
+@ permission_classes([IsAuthenticated | OwnerPermission])
+def outfit_stats_worst5(request, id):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        outfit_list = Outfit_Specific.objects.filter(id=id).order_by('count')
+        # best_worn = sorted(outfit_list, key=(lambda x: x['count']))
+        serializer = OutfitSerializer(outfit_list[:4], many=True)
+        return Response(serializer.data)
 # @ api_view(['GET','POST'])
 # @ permission_classes([IsAuthenticated | OwnerPermission])
 # def bi_lstm(request, id):

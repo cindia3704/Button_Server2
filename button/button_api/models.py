@@ -12,6 +12,7 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from django.urls import reverse
 
+
 # Create your models here.
 
 
@@ -160,8 +161,6 @@ class Cloth_Specific(models.Model):
     #     'Date', verbose_name='cloth dates worn', blank=True)
     outfit = models.ManyToManyField(
         'Outfit_Specific', related_name="clothes", blank=True)
-
-    #dates = models.DateField(verbose_name='dates worn', null=True, blank=True)
     # clothes = models.ManyToManyField(
     # 'Clothes', related_name='outfit', blank=True)
     # outfit = models.ForeignKey(to=Outfit_Specific, verbose_name="outfit",
@@ -182,6 +181,9 @@ class Cloth_Specific(models.Model):
     def get_photo(self):
         return self.photo
 
+    # def get_dates(self):
+    #     return self.dates
+
 
 class Outfit_Specific(models.Model):
     id = models.ForeignKey(
@@ -191,13 +193,17 @@ class Outfit_Specific(models.Model):
                                 unique=True)
     outfitName = models.CharField(
         max_length=64, verbose_name="outfit name", default='NONE')
-
+    count = models.IntegerField(
+        verbose_name="입은 횟수", max_length=256, default=0)
     # dates_worn = models.ManyToManyField(
     #     'Calendar_Specific', related_name="outfit_worn", blank=True)
     # dates_outfit_worn = models.ManyToOneRel(
     #     'Date', verbose_name='dates worn', blank=True)
     # clothes = models.ManyToManyField(
     #     'Cloth_Specific', related_name="outfit", blank=True)
+
+    def get_count(self):
+        return self.count
 
 
 class Calendar_Specific(models.Model):
@@ -221,14 +227,14 @@ class KNN(models.Model):
     KNNID = models.AutoField(primary_key=True,
                              verbose_name="knn ID",
                              unique=True)
-    # SEASON_CHOICES = (
-    #     ('SPRING', 'Spring'),
-    #     ('SUMMER', 'Summer'),
-    #     ('FALL', 'Fall'),
-    #     ('WINTER', 'Winter'),
-    #     ('ETC', 'etc'),
-    # )
-    # season = MultiSelectField(choices=SEASON_CHOICES, default='ETC')
+    SEASON_CHOICES = (
+        ('SPRING', 'SPRING'),
+        ('SUMMER', 'SUMMER'),
+        ('FALL', 'FALL'),
+        ('WINTER', 'WINTER'),
+        ('ETC', 'ETC'),
+    )
+    season = MultiSelectField(choices=SEASON_CHOICES, default='ETC')
     place1 = models.IntegerField(default=1, verbose_name="place 1")
     place2 = models.IntegerField(default=0, verbose_name="place 2")
     people1 = models.IntegerField(default=1, verbose_name="meeting 1")

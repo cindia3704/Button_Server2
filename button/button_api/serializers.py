@@ -72,7 +72,7 @@ class OutfitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Outfit_Specific
         fields = ('id', 'outfitID', 'outfitName',
-                  'clothes')
+                  'clothes', 'count')
         extra_kwargs = {'clothes': {'required': False}}
 
 
@@ -94,20 +94,20 @@ class Friend_Serializer(serializers.ModelSerializer):
 
 
 class KNN_Serializer(serializers.ModelSerializer):
-    # SEASON_CHOICES = (
-    #     ('SPRING', 'Spring'),
-    #     ('SUMMER', 'Summer'),
-    #     ('FALL', 'Fall'),
-    #     ('WINTER', 'Winter'),
-    #     ('ETC', 'etc'),
-    # )
-    # season = serializers.MultipleChoiceField(
-    #     choices=SEASON_CHOICES, required=False)
+    SEASON_CHOICES = (
+        ('SPRING', 'SPRING'),
+        ('SUMMER', 'SUMMER'),
+        ('FALL', 'FALL'),
+        ('WINTER', 'WINTER'),
+        ('ETC', 'ETC'),
+    )
+    season = serializers.MultipleChoiceField(
+        choices=SEASON_CHOICES, required=False)
 
     class Meta:
         model = KNN
         fields = ('id', 'KNNID', 'place1', 'place2', 'people1',
-                  'people2', 'event1', 'event2', 'mood', 'style')
+                  'people2', 'event1', 'event2', 'mood', 'season', 'style')
 
 # class ChangePasswordSerializer(serializers.Serializer):
 #     model = User
