@@ -10,8 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, views
 from rest_framework.views import APIView
-from .models import UserManager, User, Cloth_Specific, Outfit_Specific, Friend, KNN
-from .serializers import User_Serializer, Cloth_SpecificSerializer, ChangePasswordSerializer, OutfitSerializer, User_Serializer2, Friend_Serializer, KNN_Serializer
+from .models import UserManager, User, Cloth_Specific, Outfit_Specific, Friend, KNN, Calendar_Specific
+from .serializers import User_Serializer, Cloth_SpecificSerializer, ChangePasswordSerializer, OutfitSerializer, User_Serializer2, Friend_Serializer, KNN_Serializer, CalendarSerializer
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated
@@ -33,8 +33,9 @@ from django.views.generic import View
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.core.mail import send_mail, send_mass_mail
-#from .knn import knn_results
-#from . import knn
+from .knn import knn_results
+from . import knn
+import datetime
 # Create your views here.
 
 
@@ -69,7 +70,7 @@ class OwnerPermission(permissions.BasePermission):
 @api_view(['POST'])
 def post_userInput(request):
     if request.method == 'POST':
-        # knn_input = serializer.save()
+        #knn_input = serializer.save()
         place1 = request.data.get('place1')
         place2 = request.data.get('place2')
         event1 = request.data.get('event1')
@@ -77,19 +78,19 @@ def post_userInput(request):
         people1 = request.data.get('people1')
         people2 = request.data.get('people2')
         mood = request.data.get('mood')
-        # style_res = knn_results(
-        #    place1, place2, event1, event2, people1, people2, mood)
-        #request.data['style'] = style_res
+        style_res = knn_results(
+            place1, place2, event1, event2, people1, people2, mood)
+        request.data['style'] = style_res
         # knn_mod = KNN.objects.get(KNNID=serializer.data.get('KNNID'))
         # print(knn_mod)
         serializer = KNN_Serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            # knn_data = serializer.data
-            # knn_data['style'] = style_res
-            # print(style_res)
-            # print("---")
-            # knn_input.save()
+            knn_input = serializer.save()
+            knn_data = serializer.data
+            knn_data['style'] = style_res
+            print(style_res)
+            print("---")
+            knn_input.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -355,6 +356,29 @@ def cloth_list(request, id):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# @ api_view(['GET', 'POST'])
+# @ parser_classes([MultiPartParser])
+# @ permission_classes([FriendListPermission | OwnerPermission])
+# def cloth_list(request, id):
+#     def get_id():
+#         return id
+#     user = request.user
+#     # if id != user.id:
+#     #     return Response({'response': "You don't have permission for access!"})
+#     if request.method == 'GET':
+#         closet = Cloth_Specific.objects.filter(id=id)
+#         serializer = Cloth_SpecificSerializer(closet, many=True)
+#         return Response(serializer.data)
+
+#     # POST부분 authentication 추가!!!
+#     elif request.method == 'POST':
+#         serializer = Cloth_SpecificSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @ api_view(['POST'])
@@ -825,3 +849,110 @@ class VerifyFriendRequest(views.APIView):
             return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
         except jwt.exceptions.DecodeError as identifier:
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@ api_view(['POST', 'PATCH'])
+@ permission_classes([IsAuthenticated | OwnerPermission])
+def saveToCalendar(request, id, outfitID, year, month, day):
+    try:
+        user = User.objects.get(id=id)
+        outfit = Outfit_Specific.objects.get(outfitID=outfitID)
+
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except Outfit_Specific.DoesNotExist:
+        print("outfit not found")
+        return Response({'outfit': 'not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'POST':
+        month_ = str(month)
+        if month < 10:
+            month_ = "0"+str(month)
+        day_ = str(day)
+        if day < 10:
+            day_ = "0"+str(day)
+        date_ = str(year)+"-"+month_+"-"+day_
+        request.data['date'] = date_
+        # request.data['outfit_worn'] = outfit.outfitID
+        print(request.data)
+        print("-------")
+        serializer = CalendarSerializer(data=request.data)
+        print(serializer.is_valid())
+        if serializer.is_valid():
+            serializer.save()
+            cal = Calendar_Specific.objects.get(id=id, date=date_)
+            cal.outfit_worn = outfit
+            cal.save()
+            print(cal)
+            # outfit.date_worn.add(
+            # Calendar_Specific.objects.get(id=id, date=date_))
+            # outfit.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@ api_view(['GET', 'DELETE', 'PATCH'])
+@ permission_classes([IsAuthenticated | OwnerPermission])
+def getCalendar_specific_date(request, id, year, month, day):
+    month_ = str(month)
+    if month < 10:
+        month_ = "0"+str(month)
+    day_ = str(day)
+    if day < 10:
+        day_ = "0"+str(day)
+    date_ = str(year)+"-"+month_+"-"+day_
+    try:
+        user = User.objects.get(id=id)
+        calendar = Calendar_Specific.objects.get(date=date_, id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    except Calendar_Specific.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = CalendarSerializer(calendar)
+        return Response(serializer.data)
+
+    elif request.method == 'DELETE':
+        calendar.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    elif request.method == 'PATCH':
+        serializer = CalendarSerializer(calendar, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@ api_view(['POST'])
+@ permission_classes([IsAuthenticated | OwnerPermission])
+def change_Outfit_Calendar(request, id, calendarID, outfitID):
+    try:
+        cal = Calendar_Specific.objects.get(calendarID=calendarID, id=id)
+        outfit = Outfit_Specific.objects.get(outfitID=outfitID)
+    except Calendar_Specific.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except Outfit_Specific.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'POST':
+        cal.outfit_worn = outfit
+        cal.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+
+@ api_view(['GET'])
+@ permission_classes([IsAuthenticated | OwnerPermission])
+def getCalendar_all(request, id):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        calendar = Calendar_Specific.objects.filter(id=id)
+        # if calendar.:
+        #     return Response({'calendar': 'no data'}, status=status.HTTP_201_CREATED)
+        serializer = CalendarSerializer(calendar, many=True)
+        return Response(serializer.data)

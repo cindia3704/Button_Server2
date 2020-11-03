@@ -138,23 +138,38 @@ class Cloth_Specific(models.Model):
     )
     category = models.CharField(choices=CATEGORY_CHOICES, max_length=10,
                                 default='ETC')
+
+    STYLE_CHOICES = (
+        ('CASUAL', 'Casual'),
+        ('SEMI-FORMAL', 'Semi-formal'),
+        ('FORMAL', 'Formal'),
+        ('OUTDOOR', 'Outdoor'),
+        ('VACANCE', 'Vacance'),
+    )
+    style = MultiSelectField(choices=STYLE_CHOICES,
+                             default='CASUAL')
     photo = models.ImageField(
         default='button/media/default.jpg', null=True, blank=True)
-    dateBought = models.DateField(
-        verbose_name='date Bought', default=datetime.date.today())
+    # dateBought = models.DateField(
+    #     verbose_name='date Bought', null=True, blank=True)
 
-    dateLastWorn = models.DateField(
-        verbose_name='date Last Worn', default=datetime.date.today())
+    # dateLastWorn = models.DateField(
+    #     verbose_name='date Last Worn', null=True, blank=True)
+    # default=datetime.date.today(),
     # datesWorn = models.ManyToManyField(
     #     'Date', verbose_name='cloth dates worn', blank=True)
     outfit = models.ManyToManyField(
         'Outfit_Specific', related_name="clothes", blank=True)
+
+    #dates = models.DateField(verbose_name='dates worn', null=True, blank=True)
     # clothes = models.ManyToManyField(
     # 'Clothes', related_name='outfit', blank=True)
     # outfit = models.ForeignKey(to=Outfit_Specific, verbose_name="outfit",
     #                            related_name="outfit_clothes", on_delete=models.PROTECT, null=True, blank=True)
+
     def get_outfit(self):
         return outfit
+
 
 class Outfit_Specific(models.Model):
     id = models.ForeignKey(
@@ -164,10 +179,28 @@ class Outfit_Specific(models.Model):
                                 unique=True)
     outfitName = models.CharField(
         max_length=64, verbose_name="outfit name", default='NONE')
+
+    # dates_worn = models.ManyToManyField(
+    #     'Calendar_Specific', related_name="outfit_worn", blank=True)
     # dates_outfit_worn = models.ManyToOneRel(
     #     'Date', verbose_name='dates worn', blank=True)
     # clothes = models.ManyToManyField(
     #     'Cloth_Specific', related_name="outfit", blank=True)
+
+
+class Calendar_Specific(models.Model):
+    id = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="User")
+    calendarID = models.AutoField(primary_key=True,
+                                  verbose_name="outfitID",
+                                  unique=True)
+    date = models.DateField(
+        verbose_name='date Last Worn', default=datetime.date.today(), unique=True, null=True)
+
+    diary = models.TextField(verbose_name='diary',
+                             max_length=500, null=True, blank=True)
+    outfit_worn = models.ForeignKey(
+        Outfit_Specific, on_delete=models.CASCADE, verbose_name="Outfit", null=True)
 
 
 class KNN(models.Model):

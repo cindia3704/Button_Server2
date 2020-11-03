@@ -1,5 +1,5 @@
 from rest_framework import serializers, fields
-from .models import User, UserManager, Cloth_Specific, Outfit_Specific, Friend, KNN
+from .models import User, UserManager, Cloth_Specific, Outfit_Specific, Friend, KNN, Calendar_Specific
 from django.contrib.auth.hashers import make_password
 
 
@@ -46,13 +46,22 @@ class Cloth_SpecificSerializer(serializers.ModelSerializer):
     season = serializers.MultipleChoiceField(
         choices=SEASON_CHOICES, required=False)
 
+    STYLE_CHOICES = (
+        ('CASUAL', 'Casual'),
+        ('SEMI-FORMAL', 'Semi-formal'),
+        ('FORMAL', 'Formal'),
+        ('OUTDOOR', 'Outdoor'),
+        ('VACANCE', 'Vacance'),
+    )
+    style = serializers.MultipleChoiceField(choices=STYLE_CHOICES,
+                                            required=False)
     photo = serializers.ImageField(
         use_url=True, max_length=None, required=False)
 
     class Meta:
         model = Cloth_Specific
         fields = ['id', 'clothID', 'season',
-                  'category', 'dateBought', 'dateLastWorn', 'photo', 'outfit']
+                  'category', 'photo', 'style', 'outfit']
         extra_kwargs = {'outfit': {'required': False}}
 
 
@@ -67,6 +76,17 @@ class OutfitSerializer(serializers.ModelSerializer):
         extra_kwargs = {'clothes': {'required': False}}
 
 
+class CalendarSerializer(serializers.ModelSerializer):
+    outfit_worn = OutfitSerializer(read_only=True)
+    diary = serializers.CharField(required=False)
+
+    class Meta:
+        model = Calendar_Specific
+        fields = ('id', 'calendarID', 'date',
+                  'outfit_worn', 'diary')
+        extra_kwargs = {'outfit_worn': {'required': False}}
+
+
 class Friend_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Friend
@@ -74,10 +94,20 @@ class Friend_Serializer(serializers.ModelSerializer):
 
 
 class KNN_Serializer(serializers.ModelSerializer):
+    SEASON_CHOICES = (
+        ('SPRING', 'Spring'),
+        ('SUMMER', 'Summer'),
+        ('FALL', 'Fall'),
+        ('WINTER', 'Winter'),
+        ('ETC', 'etc'),
+    )
+    season = serializers.MultipleChoiceField(
+        choices=SEASON_CHOICES, required=False)
+
     class Meta:
         model = KNN
-        fields = ('id', 'KNNID', 'place1', 'place2', 'meeting1',
-                  'meeting2', 'event1', 'event2', 'mood', 'style')
+        fields = ('id', 'KNNID', 'season', 'place1', 'place2', 'people1',
+                  'people2', 'event1', 'event2', 'mood', 'style')
 
 # class ChangePasswordSerializer(serializers.Serializer):
 #     model = User

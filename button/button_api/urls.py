@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password, getCalendar_specific_date, getCalendar_all, saveToCalendar, change_Outfit_Calendar
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
@@ -84,7 +84,18 @@ urlpatterns = [
     # 친구 추가
     path('<int:id>/addfriend/<userEmail>/', views.send_friendRequest),
     # 친구 이메일 인증
-    path('verify-friend/', views.VerifyFriendRequest.as_view(), name="verify-friend")
+    path('verify-friend/', views.VerifyFriendRequest.as_view(), name="verify-friend"),
 
-
+    # 캘린더에 추가하기
+    path('addToCalendar/<int:id>/<int:outfitID>/<int:year>/<int:month>/<int:day>/',
+         views.saveToCalendar),
+    # 캘린더에서 어떤 날짜꺼 갖고오기(GET,DELETE,PATCH)
+    path('getCalendar/<int:id>/<int:year>/<int:month>/<int:day>/',
+         views.getCalendar_specific_date),
+    # 캘린더에서 모두 갖고오기(GET)
+    path('getCalendar/<int:id>/',
+         views.getCalendar_all),
+    # 캘린더 아웃핏 바꾸기
+    path('changeCalendar/<int:id>/<int:calendarID>/<int:outfitID>/',
+         views.change_Outfit_Calendar),
 ]

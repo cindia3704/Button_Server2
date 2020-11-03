@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
+path = os.path.dirname(os.path.abspath(__file__))
 data = pd.read_csv(
-    "/Users/jisookim/Desktop/capstone/Button_Server2_2/button/button_api/knn_edit.csv")
+    path+"/knn_edit.csv")
 # print(data)
 df_z = np.array(data["style"])
 df_xy = data[["place1", "place2", "event1",
