@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password, getCalendar_specific_date, getCalendar_all, saveToCalendar, change_Outfit_Calendar
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password, getCalendar_specific_date, getCalendar_all, saveToCalendar, change_Outfit_Calendar, cloth_list_season
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
@@ -34,6 +34,14 @@ urlpatterns = [
     # 한 사용자의 모든 옷 보여주기
     path('closet/<int:id>/', views.cloth_list),
 
+    # 사용자 봄옷
+    path('closet/<int:id>/getseason/<season>/', views.cloth_list_season),
+    #     # 사용자 여름옷
+    #     path('closet/<int:id>/spring/', views.cloth_list_spring),
+    #     # 사용자 가을옷
+    #     path('closet/<int:id>/spring/', views.cloth_list_spring),
+    #     # 사용자 겨울옷
+    #     path('closet/<int:id>/spring/', views.cloth_list_spring),
     # 옷의 세부 정보
     path('closet/<int:id>/<int:clothID>/', views.cloth_detail),
 

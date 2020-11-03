@@ -122,11 +122,11 @@ class Cloth_Specific(models.Model):
                                verbose_name="closetID",
                                unique=True)
     SEASON_CHOICES = (
-        ('SPRING', 'Spring'),
-        ('SUMMER', 'Summer'),
-        ('FALL', 'Fall'),
-        ('WINTER', 'Winter'),
-        ('ETC', 'etc'),
+        ('SPRING', 'SPRING'),
+        ('SUMMER', 'SUMMER'),
+        ('FALL', 'FALL'),
+        ('WINTER', 'WINTER'),
+        ('ETC', 'ETC'),
     )
     season = MultiSelectField(choices=SEASON_CHOICES, default='ETC')
     CATEGORY_CHOICES = (
@@ -168,7 +168,19 @@ class Cloth_Specific(models.Model):
     #                            related_name="outfit_clothes", on_delete=models.PROTECT, null=True, blank=True)
 
     def get_outfit(self):
-        return outfit
+        return self.outfit
+
+    def get_season(self):
+        return self.season
+
+    def get_style(self):
+        return self.style
+
+    def get_category(self):
+        return self.category
+
+    def get_photo(self):
+        return self.photo
 
 
 class Outfit_Specific(models.Model):

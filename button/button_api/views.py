@@ -70,7 +70,8 @@ class OwnerPermission(permissions.BasePermission):
 @api_view(['POST'])
 def post_userInput(request):
     if request.method == 'POST':
-        #knn_input = serializer.save()
+        # knn_input = serializer.save()
+        id = request.data.get('id')
         place1 = request.data.get('place1')
         place2 = request.data.get('place2')
         event1 = request.data.get('event1')
@@ -91,11 +92,166 @@ def post_userInput(request):
             print(style_res)
             print("---")
             knn_input.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            ret_result = False
+            while ret_result != True:
+                rand_cloth = get_randomCloth(id, style_res)
+                if rand_cloth == "does not exist":
+                    return Response({"response": "not enough clothes"})
+                print(rand_cloth)
+                bi_lstm_input = rand_cloth.get_photo()
+                print(bi_lstm_input)
+                #bi_lstm_output = set_generation(bi_lstm_input, id)
+                bi_lstm_output = ["57.jpg", "106.jpg", "121.jpg"]
+                bi_lstm_result = []
+                for cloth_result in bi_lstm_output:
+                    print(cloth_result)
+                    bi_lstm_result.append(
+                        Cloth_Specific.objects.get(id=id, photo=cloth_result))
+                print("++++")
+                if rand_cloth.get_category() == "TOP":
+                    print("TOP")
+                    result = is_valid_outfit_top(
+                        bi_lstm_result[::-1], id, rand_cloth)
+                    print(ret_result)
+                    if result == "redo":
+                        ret_result = False
+                    else:
+                        ret_result = True
+                else:
+                    result = is_valid_outfit_dress(
+                        bi_lstm_result[::-1], id, rand_cloth)
+                    print(ret_result)
+                    ret_result = True
+            ret_serializer = Cloth_SpecificSerializer(result, many=True)
+        return Response(ret_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(ret_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
 
 
-@api_view(['GET'])
+def get_randomCloth(id, style):
+    try:
+        closet_style = []
+        user_closet = Cloth_Specific.objects.filter(
+            id=id).exclude(category="OUTER").exclude(category="BOTTOM")
+        for clothes in user_closet:
+            style_ = clothes.get_style()
+            if style in style_:
+                closet_style.append(clothes)
+    except Cloth_Specific.DoesNotExist:
+        return "does not exist"
+    print(closet_style)
+    # print("-----")
+    # print(len(closet_style))
+    if len(closet_style) == 0:
+        return "does not exist"
+    else:
+        index = random.randrange(len(closet_style))
+        rand_cloth = closet_style[index]
+    # print(rand_cloth)
+        return rand_cloth
+
+
+def is_valid_outfit_top(bi_lstm_result, id, rand_cloth):
+    valid = False
+    index = 0
+    leng = len(bi_lstm_result)
+    # print(leng)
+    outfit = [rand_cloth]
+    outfit2 = []
+    cat = ["BOTTOM", "OUTER"]
+    season = rand_cloth.get_season()
+    # print("&&&&&")
+    # print(season)
+    season_valid = []
+    for i in range(0, leng):
+        season_valid.append(False)
+    # print(season_valid)
+    # print(bi_lstm_result)
+    bi_lstm_results = bi_lstm_result.copy()
+    # print(bi_lstm_results)
+    # 계절 맞지 않는 옷 빼기
+    for j in range(0, leng):
+        # print(j)
+        ses = bi_lstm_result[j].get_season()
+        # print("$$$")
+        # print(ses)
+        while season_valid[j] != True:
+            for s in ses:
+                # print("@@@@")
+                # print(s)
+                if s in season:
+                    season_valid[j] = True
+                    # print(j)
+                    break
+                # print(j)
+            if season_valid[j] == False:
+                season_valid[j] = True
+                bi_lstm_results.remove(bi_lstm_result[j])
+
+    # print(bi_lstm_results)
+    # print(season_valid)
+    # print("******")
+    while index < len(bi_lstm_results):
+        if bi_lstm_results[index].get_category() == "BOTTOM":
+            if "BOTTOM" in cat:
+                outfit.append(bi_lstm_results[index])
+                cat.remove("BOTTOM")
+                valid = True
+            index = index+1
+        elif bi_lstm_results[index].get_category() == "OUTER":
+            if "OUTER" in cat:
+                outfit.append(bi_lstm_results[index])
+                cat.remove("OUTER")
+            index = index+1
+        elif bi_lstm_results[index].get_category() == "DRESS":
+            outfit2.append(bi_lstm_results[index])
+            index = index+1
+        else:
+            index = index+1
+
+    print(outfit)
+    if valid == True:
+        return outfit
+    elif valid == False and len(outfit2) > 0:
+        return outfit2
+    else:
+        return "redo"
+
+
+def is_valid_outfit_dress(bi_lstm_result, id, rand_cloth):
+    # print("DRESS")
+    valid = True
+    index = 0
+    leng = len(bi_lstm_result)
+    # print(leng)
+    outfit = [rand_cloth]
+    cat = ["OUTER"]
+    season = rand_cloth.get_season()
+    # print("&&&&&")
+    # print(season)
+
+    while index < len(bi_lstm_result):
+        if bi_lstm_result[index].get_category() == "OUTER":
+            if "OUTER" in cat:
+                season_ = bi_lstm_result[index].get_season()
+                for se in season_:
+                    if se in season:
+                        outfit.append(bi_lstm_result[index])
+                        cat.remove("OUTER")
+                        break
+            index = index+1
+        else:
+            index = index+1
+
+    print(outfit)
+    if valid == True:
+        return outfit
+    else:
+        return "redo"
+
+
+@ api_view(['GET'])
 def get_knnResult(request, KNNID):
     try:
         result = KNN.objects.get(KNNID=KNNID)
@@ -106,18 +262,6 @@ def get_knnResult(request, KNNID):
     if request.method == 'GET':
         serializer = KNN_Serializer(result)
         return Response(serializer.data)
-
-
-# @api_view(['GET'])
-# def get_clothes_worn(request, id, datesWorn):
-#     try:
-#         cloth = Cloth_Specific.objects.filter(id=id, datesWorn=datesWorn)
-#     except Cloth_Specific.DoesNotExist:
-#         return Response({'response': 'none'})
-
-#     if request.method == 'GET':
-#         serializer = Cloth_SpecificSerializer(cloth)
-#         return Response(serializer.data)
 
 
 @ api_view(['POST'])
@@ -156,69 +300,6 @@ def register(request):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # def setPassword(request):
-    #     if request.method == 'POST':
-    #         user = request.data
-    #         serializer = User_Serializer(data=user)
-    #         data = {}
-    #         if serializer.is_valid():
-    #             account = serializer.save()
-    #             data['response'] = "successfully registerd a new user"
-    #             data['userEmail'] = account.userEmail
-    #             data['userGender'] = account.userGender
-    #             data['userNickName'] = account.userNickName
-    #             user_data = serializer.data
-    #             user__ = User.objects.get(userEmail=user_data['userEmail'])
-    #             user__.set_password()
-    #             token = Token.objects.get(user=account).key
-    #             #token = RefreshToken.for_user(user__).access_token
-    #             data['token'] = token
-
-    #             # token2 = RefreshToken.for_user(account).access_token
-    #             # data['token'] = token2
-    #             current_site = get_current_site(request).domain
-    #             relativeLink = reverse('email-verify')
-
-    #             absurl = 'http://'+current_site+relativeLink + \
-    #                 "?email="+str(account.get_email())
-    #             email_body = "Hi "+str(account.get_nickname()) + \
-    #                 ' Thank you for registering to out application "button"!!\nUse link below to verify your email\n '+absurl
-
-    #             data_ = {'email_body': email_body, 'to_email': str(account.get_email()),
-    #                      'email_subject': 'Verify your email'}
-    #             Util.send_email(data_)
-
-    #             return Response(data, status=status.HTTP_201_CREATED)
-    #         else:
-    #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # @api_view(['GET'])
-    # def findPassword(request, userEmail):
-    #     try:
-    #         user = User.objects.filter(userEmail=userEmail)
-    #     except User.DoesNotExist:
-    #         return Response(status=status.HTTP_404_NOT_FOUND)
-    #         data = {}
-    #     if request.method == 'GET':
-    #         if (user):
-    #             serializer = ChangePasswordSerializer(user)
-    #             data_ = serializer.data
-    #             password = str(data_['password'])
-    #             nickName = str(data_['userNickName'])
-    #             current_site = get_current_site(request).domain
-    #             relativeLink = reverse('email-find')
-    #             # absurl = 'http://'+current_site+relativeLink + \
-    #             #     "?email="+str(account.get_email())
-    #             email_body = "Hi "+str(nickName) + \
-    #                 ' \nYour password is: '+str(password)
-
-    #             data_ = {'email_body': email_body, 'to_email': str(userEmail),
-    #                      'email_subject': 'Find your email'}
-    #             Util.send_email(data_)
-    #             return Response(data)
-    #         else:
-    #             return Response(data)
-
 
 @ api_view(['GET'])
 def findEmail(request, userEmail):
@@ -227,23 +308,6 @@ def findEmail(request, userEmail):
             return Response({'exists': True})
         else:
             return Response({'exists': False})
-
-
-# @ api_view(['POST'])
-# @permission_classes(OwnerPermission)
-# def changePassword(request, id, changed):
-#     if user_personal.id != user.id:
-#         return Response({'response': "You don't have permission for access!"})
-#     if request.method == 'POST':
-#         try:
-#             user = User.objects.get(id=id)
-#         except User.DoesNotExist:
-#             return Response({'response': "no user found"}, status=status.HTTP_404_NOT_FOUND)
-#         if(user):
-#             password = changed
-#             user.set_password(password)
-#             user.save
-#             return Response({'response': "password changed successfully"}, status=status.HTTP_201_CREATED)
 
 
 @ api_view(['GET'])
@@ -267,13 +331,6 @@ def user_list(request):
         serializer = User_Serializer(users, many=True)
         # permission_classes = [IsAuthenticated]
         return Response(serializer.data)
-    # elif request.method == 'POST':
-    #     serializer = User_Serializer(data=request.data)
-    #     permission_classes = [IsAuthenticated]
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @ api_view(['GET'])
@@ -347,6 +404,7 @@ def cloth_list(request, id):
     if request.method == 'GET':
         closet = Cloth_Specific.objects.filter(id=id)
         serializer = Cloth_SpecificSerializer(closet, many=True)
+        print(closet)
         return Response(serializer.data)
 
     # POST부분 authentication 추가!!!
@@ -354,31 +412,31 @@ def cloth_list(request, id):
         serializer = Cloth_SpecificSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            # extract feature!!
+            # closet_=Cloth_Specific.objects.filter(id=id)
+            #serializer_ = Cloth_SpecificSerializer(closet_, many=True)
+            # extract(id,serializer.data,number)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# @ api_view(['GET', 'POST'])
-# @ parser_classes([MultiPartParser])
-# @ permission_classes([FriendListPermission | OwnerPermission])
-# def cloth_list(request, id):
-#     def get_id():
-#         return id
-#     user = request.user
-#     # if id != user.id:
-#     #     return Response({'response': "You don't have permission for access!"})
-#     if request.method == 'GET':
-#         closet = Cloth_Specific.objects.filter(id=id)
-#         serializer = Cloth_SpecificSerializer(closet, many=True)
-#         return Response(serializer.data)
+@ api_view(['GET'])
+@ parser_classes([MultiPartParser])
+@ permission_classes([FriendListPermission | OwnerPermission])
+def cloth_list_season(request, id, season):
 
-#     # POST부분 authentication 추가!!!
-#     elif request.method == 'POST':
-#         serializer = Cloth_SpecificSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'GET':
+        closet = Cloth_Specific.objects.filter(id=id)
+        clo = []
+        for clothes in closet:
+            ses = clothes.get_season()
+            if season in ses:
+                clo.append(clothes)
+
+        print(closet)
+        serializer = Cloth_SpecificSerializer(clo, many=True)
+        print(serializer)
+        return Response(serializer.data)
 
 
 @ api_view(['POST'])
@@ -586,6 +644,7 @@ def saveOutfit(request, id):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 @api_view(['GET'])
 =======
 # @api_view['POST']
@@ -604,6 +663,8 @@ def saveOutfit(request, id):
 #         serializer = OutfitSerializer(outfit_closet, many=True)
 #         return Response(serializer.data)
 
+=======
+>>>>>>> c7b0972... add outfit check
 @ api_view(['GET'])
 <<<<<<< HEAD
 @ permission_classes([IsAuthenticated | FriendListPermission])
@@ -659,40 +720,6 @@ def outfit_change(request, id, outfitID):
         serializer = OutfitSerializer(outfit)
         return Response(serializer.data)
 
-# class ChangePasswordView(generics.UpdateAPIView):
-#     """
-#     An endpoint for changing password.
-#     """
-#     serializer_class = ChangePasswordSerializer
-#     model = User
-#     permission_classes = (IsAuthenticated,)
-
-#     def get_object(self, queryset=None):
-#         obj = self.request.user
-#         return obj
-
-#     def update(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         serializer = self.get_serializer(data=request.data)
-
-#         if serializer.is_valid():
-#             # Check old password
-#             if not self.object.check_password(serializer.data.get("old_password")):
-#                 return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
-#             # set_password also hashes the password that the user will get
-#             self.object.set_password(serializer.data.get("new_password"))
-#             self.object.save()
-#             response = {
-#                 'status': 'success',
-#                 'code': status.HTTP_200_OK,
-#                 'message': 'Password updated successfully',
-#                 'data': []
-#             }
-
-#             return Response(response)
-
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class VerifyEmail(views.APIView):
     def get(self, request):
@@ -709,21 +736,6 @@ class VerifyEmail(views.APIView):
         except jwt.exceptions.DecodeError as identifier:
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
-
-# class AcceptFriendEmail(views.APIView):
-#     def get(self, request):
-#         email = request.GET.get('email')
-#         try:
-#             user = User.objects.get(userEmail=email)
-
-#             if not user.confirmedEmail:
-#                 user.confirmedEmail = True
-#                 user.save()
-#             return Response({'email': 'Successfully activated'}, status=status.HTTP_201_CREATED)
-#         except jwt.ExpiredSignatureError as identifier:
-#             return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
-#         except jwt.exceptions.DecodeError as identifier:
-#             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 @ api_view(['GET'])
 @ permission_classes((IsAuthenticated, OwnerPermission))
@@ -787,14 +799,6 @@ def send_friendRequest(request, id, userEmail):
             new_friend.frienduser = User.objects.get(
                 userEmail=userEmail)
             new_friend.save()
-        # user = User.objects.filter(id=id)
-        # reciever = User.objects.get(userEmail=userEmail)
-        # data = {}
-        # data['user'] =
-        # data['frienduser'] = reciever
-        # serializer = Friend_Serializer(data=data)
-        # if(serializer.is_valid()):
-        #     serializer.save()
 
         # user = User.objects.get(id=id)
             senderEmail = user.get_email()
@@ -956,3 +960,19 @@ def getCalendar_all(request, id):
         #     return Response({'calendar': 'no data'}, status=status.HTTP_201_CREATED)
         serializer = CalendarSerializer(calendar, many=True)
         return Response(serializer.data)
+
+
+# @ api_view(['GET','POST'])
+# @ permission_classes([IsAuthenticated | OwnerPermission])
+# def bi_lstm(request, id):
+#     try:
+#         user = User.objects.get(id=id)
+#     except User.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+
+#     if request.method == 'GET':
+#         calendar = Calendar_Specific.objects.filter(id=id)
+#         # if calendar.:
+#         #     return Response({'calendar': 'no data'}, status=status.HTTP_201_CREATED)
+#         serializer = CalendarSerializer(calendar, many=True)
+#         return Response(serializer.data)
