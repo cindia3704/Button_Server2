@@ -28,6 +28,7 @@ from django.contrib.auth.hashers import make_password
 # from drf_yasg.utils import swagger_auto_schema
 # from drf_yasg import openapi
 import random
+#from random import *
 import string
 from django.views.generic import View
 from django.shortcuts import redirect
@@ -90,22 +91,29 @@ def post_userInput(request):
         # knn_mod = KNN.objects.get(KNNID=serializer.data.get('KNNID'))
         # print(knn_mod)
         serializer = KNN_Serializer(data=request.data)
+        print(request.data)
+        print(serializer.is_valid())
         if serializer.is_valid():
+            print("valid")
             knn_input = serializer.save()
             knn_data = serializer.data
             knn_data['style'] = style_res
             print(style_res)
             print("---")
             knn_input.save()
+            # if season in ["SPRING", "FALL"]:
+            #     season = ["SPRING", "FALL"]
             # ret_result = False
             # while ret_result != True:
-            #     rand_cloth = get_randomCloth(id, style_res)
+            #     print("get rand")
+            #     rand_cloth = get_randomCloth(id, style_res, season)
+            #     print(rand_cloth)
             #     if rand_cloth == "does not exist":
             #         return Response({"response": "not enough clothes"})
             #     print(rand_cloth)
             #     bi_lstm_input = rand_cloth.get_photo()
             #     print(bi_lstm_input)
-            #     #bi_lstm_output = set_generation(bi_lstm_input, id)
+            #     # bi_lstm_output = set_generation(bi_lstm_input, id)
             #     bi_lstm_output = ["57.jpg", "106.jpg", "121.jpg"]
             #     bi_lstm_result = []
             #     for cloth_result in bi_lstm_output:
@@ -116,7 +124,7 @@ def post_userInput(request):
             #     if rand_cloth.get_category() == "TOP":
             #         print("TOP")
             #         result = is_valid_outfit_top(
-            #             bi_lstm_result[::-1], id, rand_cloth)
+            #             bi_lstm_result[::-1], id, rand_cloth, season)
             #         print(ret_result)
             #         if result == "redo":
             #             ret_result = False
@@ -124,7 +132,7 @@ def post_userInput(request):
             #             ret_result = True
             #     else:
             #         result = is_valid_outfit_dress(
-            #             bi_lstm_result[::-1], id, rand_cloth)
+            #             bi_lstm_result[::-1], id, rand_cloth, season)
             #         print(ret_result)
             #         ret_result = True
             # ret_serializer = Cloth_SpecificSerializer(result, many=True)
@@ -134,30 +142,43 @@ def post_userInput(request):
 # knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
 
 
-def get_randomCloth(id, style):
+def get_randomCloth(id, style, season):
+    print("inside rand")
+    print(season)
     try:
         closet_style = []
         user_closet = Cloth_Specific.objects.filter(
             id=id).exclude(category="OUTER").exclude(category="BOTTOM")
+        print(user_closet)
         for clothes in user_closet:
+            print(clothes)
             style_ = clothes.get_style()
+            seasons = clothes.get_season()
             if style in style_:
-                closet_style.append(clothes)
+                print("*****")
+                for se in seasons:
+                    if se in season:
+                        closet_style.append(clothes)
+                        break
     except Cloth_Specific.DoesNotExist:
         return "does not exist"
+    print("list")
     print(closet_style)
     # print("-----")
     # print(len(closet_style))
     if len(closet_style) == 0:
         return "does not exist"
     else:
-        index = random.randrange(len(closet_style))
+        index = random.randrange(1, len(closet_style))
+        print(index)
+        print(len(closet_style))
         rand_cloth = closet_style[index]
+        # rand_cloth = random.choice(closet_style)
     # print(rand_cloth)
         return rand_cloth
 
 
-def is_valid_outfit_top(bi_lstm_result, id, rand_cloth):
+def is_valid_outfit_top(bi_lstm_result, id, rand_cloth, season_input):
     valid = False
     index = 0
     leng = len(bi_lstm_result)
@@ -165,7 +186,7 @@ def is_valid_outfit_top(bi_lstm_result, id, rand_cloth):
     outfit = [rand_cloth]
     outfit2 = []
     cat = ["BOTTOM", "OUTER"]
-    season = rand_cloth.get_season()
+    season = season_input
     # print("&&&&&")
     # print(season)
     season_valid = []
@@ -224,7 +245,7 @@ def is_valid_outfit_top(bi_lstm_result, id, rand_cloth):
         return "redo"
 
 
-def is_valid_outfit_dress(bi_lstm_result, id, rand_cloth):
+def is_valid_outfit_dress(bi_lstm_result, id, rand_cloth, season_input):
     # print("DRESS")
     valid = True
     index = 0
@@ -232,7 +253,7 @@ def is_valid_outfit_dress(bi_lstm_result, id, rand_cloth):
     # print(leng)
     outfit = [rand_cloth]
     cat = ["OUTER"]
-    season = rand_cloth.get_season()
+    season = season_input
     # print("&&&&&")
     # print(season)
 
@@ -419,7 +440,7 @@ def cloth_list(request, id):
             serializer.save()
             # extract feature!!
             # closet_=Cloth_Specific.objects.filter(id=id)
-            #serializer_ = Cloth_SpecificSerializer(closet_, many=True)
+            # serializer_ = Cloth_SpecificSerializer(closet_, many=True)
             # extract(id,serializer.data,number)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

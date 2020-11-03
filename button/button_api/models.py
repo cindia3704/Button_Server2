@@ -194,7 +194,7 @@ class Outfit_Specific(models.Model):
     outfitName = models.CharField(
         max_length=64, verbose_name="outfit name", default='NONE')
     count = models.IntegerField(
-        verbose_name="입은 횟수", max_length=256, default=0)
+        verbose_name="입은 횟수", default=0)
     # dates_worn = models.ManyToManyField(
     #     'Calendar_Specific', related_name="outfit_worn", blank=True)
     # dates_outfit_worn = models.ManyToOneRel(
@@ -234,7 +234,8 @@ class KNN(models.Model):
         ('WINTER', 'WINTER'),
         ('ETC', 'ETC'),
     )
-    season = MultiSelectField(choices=SEASON_CHOICES, default='ETC')
+    season = models.CharField(verbose_name='season', choices=SEASON_CHOICES, max_length=10,
+                              default='ETC')
     place1 = models.IntegerField(default=1, verbose_name="place 1")
     place2 = models.IntegerField(default=0, verbose_name="place 2")
     people1 = models.IntegerField(default=1, verbose_name="meeting 1")
