@@ -37,6 +37,10 @@ from django.core.mail import send_mail, send_mass_mail
 from .knn import knn_results
 from . import knn
 import datetime
+from . import polyvore
+from .polyvore import run_inference
+from .polyvore.run_inference import extract_features
+import json
 # from .. import model
 # from .. import polyvore
 # from .. import data
@@ -101,43 +105,41 @@ def post_userInput(request):
             print(style_res)
             print("---")
             knn_input.save()
-            # if season in ["SPRING", "FALL"]:
-            #     season = ["SPRING", "FALL"]
-            # ret_result = False
-            # while ret_result != True:
-            #     print("get rand")
-            #     rand_cloth = get_randomCloth(id, style_res, season)
-            #     print(rand_cloth)
-            #     if rand_cloth == "does not exist":
-            #         return Response({"response": "not enough clothes"})
-            #     print(rand_cloth)
-            #     bi_lstm_input = rand_cloth.get_photo()
-            #     print(bi_lstm_input)
-            #     # bi_lstm_output = set_generation(bi_lstm_input, id)
-            #     bi_lstm_output = ["57.jpg", "106.jpg", "121.jpg"]
-            #     bi_lstm_result = []
-            #     for cloth_result in bi_lstm_output:
-            #         print(cloth_result)
-            #         bi_lstm_result.append(
-            #             Cloth_Specific.objects.get(id=id, photo=cloth_result))
-            #     print("++++")
-            #     if rand_cloth.get_category() == "TOP":
-            #         print("TOP")
-            #         result = is_valid_outfit_top(
-            #             bi_lstm_result[::-1], id, rand_cloth, season)
-            #         print(ret_result)
-            #         if result == "redo":
-            #             ret_result = False
-            #         else:
-            #             ret_result = True
-            #     else:
-            #         result = is_valid_outfit_dress(
-            #             bi_lstm_result[::-1], id, rand_cloth, season)
-            #         print(ret_result)
-            #         ret_result = True
-            # ret_serializer = Cloth_SpecificSerializer(result, many=True)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            ret_result = False
+            while ret_result != True:
+                print("get rand")
+                rand_cloth = get_randomCloth(id, style_res, season)
+                print(rand_cloth)
+                if rand_cloth == "does not exist":
+                    return Response({"response": "not enough clothes"})
+                print(rand_cloth)
+                bi_lstm_input = rand_cloth.get_photo()
+                print(bi_lstm_input)
+                # bi_lstm_output = set_generation(bi_lstm_input, id,style)
+                bi_lstm_output = ["81.jpg", "86.jpg", "99.jpg", "5.jpg"]
+                bi_lstm_result = []
+                for cloth_result in bi_lstm_output:
+                    print(cloth_result)
+                    bi_lstm_result.append(
+                        Cloth_Specific.objects.get(id=id, photo=cloth_result))
+                print("++++")
+                if rand_cloth.get_category() == "TOP":
+                    print("TOP")
+                    result = is_valid_outfit_top(
+                        bi_lstm_result[::-1], id, rand_cloth, season)
+                    print(ret_result)
+                    if result == "redo":
+                        ret_result = False
+                    else:
+                        ret_result = True
+                else:
+                    result = is_valid_outfit_dress(
+                        bi_lstm_result[::-1], id, rand_cloth, season)
+                    print(ret_result)
+                    ret_result = True
+            ret_serializer = Cloth_SpecificSerializer(result, many=True)
+        return Response(ret_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(ret_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
 
@@ -169,13 +171,15 @@ def get_randomCloth(id, style, season):
     if len(closet_style) == 0:
         return "does not exist"
     else:
-        index = random.randrange(1, len(closet_style))
+        index = random.randrange(0, len(closet_style))
         print(index)
         print(len(closet_style))
         rand_cloth = closet_style[index]
         # rand_cloth = random.choice(closet_style)
     # print(rand_cloth)
         return rand_cloth
+
+# def random_cordi_week(id,season_input):
 
 
 def is_valid_outfit_top(bi_lstm_result, id, rand_cloth, season_input):
@@ -228,6 +232,7 @@ def is_valid_outfit_top(bi_lstm_result, id, rand_cloth, season_input):
         elif bi_lstm_results[index].get_category() == "OUTER":
             if "OUTER" in cat:
                 outfit.append(bi_lstm_results[index])
+                outfit2.append(bi_lstm_result[index])
                 cat.remove("OUTER")
             index = index+1
         elif bi_lstm_results[index].get_category() == "DRESS":
@@ -315,7 +320,7 @@ def register(request):
 
             absurl = 'http://'+current_site+relativeLink + \
                 "?email="+str(account.get_email())
-            email_body = ""+str(account.get_nickname()) + "님, 안녕하세요.\n"\
+            email_body = ""+str(account.get_nickname()) + "님, 안녕하세요.\n옷장 관리 및 코디 어플 \'button\'입니다.\n\n"\
                 '저희 버튼에 회원가입을 해주셔서 감사합니다.\n아래 링크로 이메일 인증을 완료해주세요\n '+absurl
 
             data_ = {'email_body': email_body, 'to_email': str(account.get_email()),
@@ -435,12 +440,44 @@ def cloth_list(request, id):
 
     # POST부분 authentication 추가!!!
     elif request.method == 'POST':
-        serializer = Cloth_SpecificSerializer(data=request.data)
+        # 밑 세줄 지우고 data=request.data로!
+        photo = request.FILES["photo"]
+        data = json.loads(request.data['data'])
+        data["photo"] = photo
+        serializer = Cloth_SpecificSerializer(data=data)
+        #serializer = Cloth_SpecificSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            print("start extract")
+            print(serializer.data)
+            closet_ = Cloth_Specific.objects.filter(id=id)
+            number_ = len(closet_)-1
+            print(number_)
+            extract_features(id, serializer.data, number_)
+            print("end extract")
+            #seasons = request.data.get('season')
+            # tf = []
+            # for i in range(0, 4):
+            #     tf.append(False)
+            # if "SPRING" in seasons:
+            #     tf[0] = True
+            # if "SUMMER" in seasons:
+            #     tf[1] = True
+            # if "FALL" in seasons:
+            #     tf[2] = True
+            # if "WINTER" in seasons:
+            #     tf[3] = True
+
+            # if tf[3] == True:
+            #     extract(id, serializer.data, number, "winter")
+            # if tf[1] == True:
+            #     extract(id, serializer.data, number, "summer")
+            # if tf[0] == True or tf[2] == True:
+            #     extract(id, serializer.data, number, "hwan")
+
             # extract feature!!
             # closet_=Cloth_Specific.objects.filter(id=id)
-            # serializer_ = Cloth_SpecificSerializer(closet_, many=True)
+            #serializer_ = Cloth_SpecificSerializer(closet_, many=True)
             # extract(id,serializer.data,number)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -510,7 +547,8 @@ def find_password(request, userEmail):
         result_str = ''.join(random.choice(letters) for i in range(10))
         print(result_str)
         email_body = ""+str(user.get_nickname()) + \
-            ' 님 안녕하세요.\n임시 비밀번호: '+result_str+'\n로그인을 한 후 반드시 비밀번호를 변경해 주시기 바랍니다.'
+            ' 님 안녕하세요.\n옷장 관리 및 코디 어플 \'button\'입니다.\n\n임시 비밀번호: ' + \
+            result_str+'\n로그인을 한 후 반드시 비밀번호를 변경해 주시기 바랍니다.'
 
         data_ = {'email_body': email_body, 'to_email': str(user.get_email()),
                  'email_subject': '비밀번호 찾기'}
@@ -844,7 +882,7 @@ def send_friendRequest(request, id, userEmail):
 
             absurl = 'http://'+current_site+relativeLink + \
                 "?email="+str(recieverEmail)+"&sender="+str(senderEmail)
-            email_body = ""+str(reciever.get_nickname()) + "님, 안녕하세요.\n" \
+            email_body = ""+str(reciever.get_nickname()) + "님, 안녕하세요.\n옷장 관리 및 코디 어플 \'button\'입니다.\n\n" \
                 + str(user.get_nickname()) + \
                 "님이 친구 요청을 보냈습니다.\n아래 링크를 클릭해 친구요청을 수락해주세요.\n"+absurl
 

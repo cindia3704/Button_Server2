@@ -123,9 +123,8 @@ class Cloth_Specific(models.Model):
                                verbose_name="closetID",
                                unique=True)
     SEASON_CHOICES = (
-        ('SPRING', 'SPRING'),
+        ('HWAN', 'HWAN'),
         ('SUMMER', 'SUMMER'),
-        ('FALL', 'FALL'),
         ('WINTER', 'WINTER'),
         ('ETC', 'ETC'),
     )
@@ -228,9 +227,8 @@ class KNN(models.Model):
                              verbose_name="knn ID",
                              unique=True)
     SEASON_CHOICES = (
-        ('SPRING', 'SPRING'),
+        ('HWAN', 'HWAN'),
         ('SUMMER', 'SUMMER'),
-        ('FALL', 'FALL'),
         ('WINTER', 'WINTER'),
         ('ETC', 'ETC'),
     )

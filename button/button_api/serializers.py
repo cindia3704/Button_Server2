@@ -37,11 +37,10 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
 
 class Cloth_SpecificSerializer(serializers.ModelSerializer):
     SEASON_CHOICES = (
-        ('SPRING', 'Spring'),
-        ('SUMMER', 'Summer'),
-        ('FALL', 'Fall'),
-        ('WINTER', 'Winter'),
-        ('ETC', 'etc'),
+        ('HWAN', 'HWAN'),
+        ('SUMMER', 'SUMMER'),
+        ('WINTER', 'WINTER'),
+        ('ETC', 'ETC'),
     )
     season = serializers.MultipleChoiceField(
         choices=SEASON_CHOICES, required=False)
