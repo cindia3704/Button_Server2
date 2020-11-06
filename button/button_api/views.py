@@ -37,9 +37,9 @@ from django.core.mail import send_mail, send_mass_mail
 from .knn import knn_results
 from . import knn
 import datetime
-from . import polyvore
-from .polyvore import run_inference
-from .polyvore.run_inference import extract_features
+# from . import polyvore
+# from .polyvore import run_inference
+# from .polyvore.run_inference import extract_features
 import json
 # from .. import model
 # from .. import polyvore
