@@ -105,41 +105,41 @@ def post_userInput(request):
             print(style_res)
             print("---")
             knn_input.save()
-            ret_result = False
-            while ret_result != True:
-                print("get rand")
-                rand_cloth = get_randomCloth(id, style_res, season)
-                print(rand_cloth)
-                if rand_cloth == "does not exist":
-                    return Response({"response": "not enough clothes"})
-                print(rand_cloth)
-                bi_lstm_input = rand_cloth.get_photo()
-                print(bi_lstm_input)
-                # bi_lstm_output = set_generation(bi_lstm_input, id,style)
-                bi_lstm_output = ["81.jpg", "86.jpg", "99.jpg", "5.jpg"]
-                bi_lstm_result = []
-                for cloth_result in bi_lstm_output:
-                    print(cloth_result)
-                    bi_lstm_result.append(
-                        Cloth_Specific.objects.get(id=id, photo=cloth_result))
-                print("++++")
-                if rand_cloth.get_category() == "TOP":
-                    print("TOP")
-                    result = is_valid_outfit_top(
-                        bi_lstm_result[::-1], id, rand_cloth, season)
-                    print(ret_result)
-                    if result == "redo":
-                        ret_result = False
-                    else:
-                        ret_result = True
-                else:
-                    result = is_valid_outfit_dress(
-                        bi_lstm_result[::-1], id, rand_cloth, season)
-                    print(ret_result)
-                    ret_result = True
-            ret_serializer = Cloth_SpecificSerializer(result, many=True)
-        return Response(ret_serializer.data, status=status.HTTP_201_CREATED)
-    return Response(ret_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # ret_result = False
+            # while ret_result != True:
+            #     print("get rand")
+            #     rand_cloth = get_randomCloth(id, style_res, season)
+            #     print(rand_cloth)
+            #     if rand_cloth == "does not exist":
+            #         return Response({"response": "not enough clothes"})
+            #     print(rand_cloth)
+            #     bi_lstm_input = rand_cloth.get_photo()
+            #     print(bi_lstm_input)
+            #     # bi_lstm_output = set_generation(bi_lstm_input, id,style)
+            #     bi_lstm_output = ["81.jpg", "86.jpg", "99.jpg", "5.jpg"]
+            #     bi_lstm_result = []
+            #     for cloth_result in bi_lstm_output:
+            #         print(cloth_result)
+            #         bi_lstm_result.append(
+            #             Cloth_Specific.objects.get(id=id, photo=cloth_result))
+            #     print("++++")
+            #     if rand_cloth.get_category() == "TOP":
+            #         print("TOP")
+            #         result = is_valid_outfit_top(
+            #             bi_lstm_result[::-1], id, rand_cloth, season)
+            #         print(ret_result)
+            #         if result == "redo":
+            #             ret_result = False
+            #         else:
+            #             ret_result = True
+            #     else:
+            #         result = is_valid_outfit_dress(
+            #             bi_lstm_result[::-1], id, rand_cloth, season)
+            #         print(ret_result)
+            #         ret_result = True
+            # ret_serializer = Cloth_SpecificSerializer(result, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
 
@@ -441,11 +441,11 @@ def cloth_list(request, id):
     # POST부분 authentication 추가!!!
     elif request.method == 'POST':
         # 밑 세줄 지우고 data=request.data로!
-        photo = request.FILES["photo"]
-        data = json.loads(request.data['data'])
-        data["photo"] = photo
-        serializer = Cloth_SpecificSerializer(data=data)
-        #serializer = Cloth_SpecificSerializer(data=request.data)
+        # photo = request.FILES["photo"]
+        # data = json.loads(request.data['data'])
+        # data["photo"] = photo
+        # serializer = Cloth_SpecificSerializer(data=data)
+        serializer = Cloth_SpecificSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             print("start extract")
@@ -453,7 +453,7 @@ def cloth_list(request, id):
             closet_ = Cloth_Specific.objects.filter(id=id)
             number_ = len(closet_)-1
             print(number_)
-            extract_features(id, serializer.data, number_)
+            # extract_features(id, serializer.data)
             print("end extract")
             #seasons = request.data.get('season')
             # tf = []
