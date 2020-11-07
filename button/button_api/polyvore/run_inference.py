@@ -1,3 +1,7 @@
+# pkl 오류 수정본 !
+
+"""Run the inference of Bi-LSTM model given input images."""
+
 import tensorflow as tf
 import pickle as pkl
 import numpy as np
@@ -8,19 +12,18 @@ import json
 
 
 def main():
-    input1 = int(input("number 입력: "))
     sample_data = {"id": 22,
-                   "clothID": 1000000,
-                   "season": ["SPRING", "WINTER", "FALL"],
+                   "clothID": 10,
+                   "season": ["SUMMER", "WINTER"],
                    "category": "OUTER",
-                   "photo": "17.jpg",
+                   "photo": "20.jpg",
                    "style": ["SEMI-FORMAL", "CASUAL"],
                    "outfit": [6]
                    }
-    extract_features(sample_data["id"], sample_data, input1)
+    extract_features(sample_data["id"], sample_data)
 
 
-def extract_features(id, serializer_data, number):
+def extract_features(id, serializer_data):
     for one_season in serializer_data["season"]:
         json_path = one_season + "_" + str(serializer_data["id"]) + ".json"
 
@@ -67,23 +70,30 @@ def extract_features(id, serializer_data, number):
     saver.restore(sess, "button_api/model/model_final/model.ckpt-34865")
 
     for one_season in serializer_data["season"]:
-        json_path = one_season + "_" + \
-            str(serializer_data["id"]) + ".json"  # TODO :: change this path
+        json_path = one_season + "_" + str(serializer_data["id"]) + ".json"
         pkl_path = one_season + "_" + str(serializer_data["id"]) + ".pkl"
 
         test_json = json.load(open(json_path))
         test_features = dict()
 
-        if number != 0:
+        if os.path.isfile(pkl_path):  # 있으면 append
+            f = open(json_path, "r")
+            json_dict = json.load(f)
+            json_items = json_dict[0]["items"]
+            number = len(json_items)
+            append_from_number = number - 1
+            f.close()
+            print(append_from_number)
+
             added_test_features = dict()
             for image_set in test_json:
                 set_id = image_set["set_id"]
                 image_feat = []
                 image_rnn_feat = []
                 ids = []
-            for image in image_set["items"][number:]:
+            for image in image_set["items"][append_from_number:]:
                 filename = os.path.join("", set_id,
-                                        # TODO K-jisoo u have to change this path to DJnago MEDIA dir
+                                        # TODO :: change this path to DJnago MEDIA dir
                                         str(image["index"]) + ".jpg")
                 print(filename)
                 with tf.gfile.GFile(filename, "r") as f:
@@ -110,8 +120,8 @@ def extract_features(id, serializer_data, number):
             f = open(pkl_path, "wb")
             pkl.dump(data, f)
             f.close()
-        if number == 0:
-            # Save image ids and features in a dictionary.
+
+        else:  # 없으면 새로 만들기
             k = 0
             for image_set in test_json:
                 set_id = image_set["set_id"]
@@ -136,12 +146,8 @@ def extract_features(id, serializer_data, number):
                     test_features[image_name]["image_rnn_feat"] = np.squeeze(
                         rnn_feat)
 
-                    # return input1
-
             with open(pkl_path, "wb") as f:
-                print(number)
                 pkl.dump(test_features, f)
-                print(number)
 
 
 if __name__ == "__main__":
