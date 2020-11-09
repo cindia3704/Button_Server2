@@ -37,9 +37,9 @@ from django.core.mail import send_mail, send_mass_mail
 from .knn import knn_results
 from . import knn
 import datetime
-from . import polyvore
-from .polyvore import run_inference
-from .polyvore.run_inference import extract_features
+# from . import polyvore
+# from .polyvore import run_inference
+# from .polyvore.run_inference import extract_features
 import json
 # from .. import model
 # from .. import polyvore
@@ -105,9 +105,12 @@ def post_userInput(request):
             print(style_res)
             print("---")
             knn_input.save()
+            # if season=="WINTER" and style_res=="VACANCE":
+            #     style_res="CASUAL"
             # ret_result = False
             # while ret_result != True:
             #     print("get rand")
+            #     print("season: "+str(season)+"    style: "+str(style_res))
             #     rand_cloth = get_randomCloth(id, style_res, season)
             #     print(rand_cloth)
             #     if rand_cloth == "does not exist":
@@ -450,10 +453,10 @@ def cloth_list(request, id):
             serializer.save()
             print("start extract")
             print(serializer.data)
-            closet_ = Cloth_Specific.objects.filter(id=id)
-            number_ = len(closet_)-1
-            print(number_)
-            extract_features(id, serializer.data)
+            # closet_ = Cloth_Specific.objects.filter(id=id)
+            # number_ = len(closet_)-1
+            # print(number_)
+            #extract_features(id, serializer.data)
             print("end extract")
             #seasons = request.data.get('season')
             # tf = []
@@ -549,7 +552,7 @@ def find_password(request, userEmail):
         email_body = ""+str(user.get_nickname()) + \
             ' 님 안녕하세요.\n옷장 관리 및 코디 어플 \'button\'입니다.\n\n임시 비밀번호: ' + \
             result_str+'\n로그인을 한 후 반드시 비밀번호를 변경해 주시기 바랍니다.'
-
+        # email_body.attach(logo_data())
         data_ = {'email_body': email_body, 'to_email': str(user.get_email()),
                  'email_subject': '비밀번호 찾기'}
         Util.send_email(data_)
@@ -559,6 +562,18 @@ def find_password(request, userEmail):
     else:
         return Response({'response': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 
+
+# #@lru_cache()
+# def logo_data():
+#     filename = os.path.join("", "media",
+#                             # TODO :: change this path to DJnago MEDIA dir
+#                             str("logo") + ".jpg")
+
+#     with open(filename, 'rb') as f:
+#         logo_data = f.read()
+#     # logo = MIMEImage(logo_data)
+#     # logo.add_header('Content-ID', '<logo>')
+#     return logo
 
 @ api_view(['POST'])
 @ permission_classes([FriendListPermission | OwnerPermission])
@@ -1041,6 +1056,33 @@ def getCalendar_all(request, id):
         # if calendar.:
         #     return Response({'calendar': 'no data'}, status=status.HTTP_201_CREATED)
         serializer = CalendarSerializer(calendar, many=True)
+        return Response(serializer.data)
+
+
+@ api_view(['GET'])
+@ permission_classes([IsAuthenticated | OwnerPermission])
+def getCalendar_month(request, id, year, month):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        month_ = str(month)
+        if month < 10:
+            month_ = "0"+str(month)
+        date__ = str(year)+"-"+str(month)+"-"
+        calendar = Calendar_Specific.objects.filter(id=id)
+        calendar__ = []
+        for cal in calendar:
+            datee = str(cal.get_date())
+            if date__ in datee:
+                calendar__.append(cal)
+
+        print(calendar__)
+        # if calendar.:
+        #     return Response({'calendar': 'no data'}, status=status.HTTP_201_CREATED)
+        serializer = CalendarSerializer(calendar__, many=True)
         return Response(serializer.data)
 
 

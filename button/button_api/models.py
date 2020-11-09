@@ -219,6 +219,9 @@ class Calendar_Specific(models.Model):
     outfit_worn = models.ForeignKey(
         Outfit_Specific, on_delete=models.CASCADE, verbose_name="Outfit", null=True)
 
+    def get_date(self):
+        return self.date
+
 
 class KNN(models.Model):
     id = models.ForeignKey(

@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password, getCalendar_specific_date, getCalendar_all, saveToCalendar, change_Outfit_Calendar, cloth_list_season, outfit_stats_best5, outfit_stats_worst5
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password, getCalendar_specific_date, getCalendar_all, saveToCalendar, change_Outfit_Calendar, cloth_list_season, outfit_stats_best5, outfit_stats_worst5, getCalendar_month
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
@@ -103,6 +103,8 @@ urlpatterns = [
     # 캘린더에서 모두 갖고오기(GET)
     path('getCalendar/<int:id>/',
          views.getCalendar_all),
+    path('getCalendar/<int:id>/<int:year>/<int:month>/',
+         views.getCalendar_month),
     # 캘린더 아웃핏 바꾸기
     path('changeCalendar/<int:id>/<int:calendarID>/<int:outfitID>/',
          views.change_Outfit_Calendar),
