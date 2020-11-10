@@ -103,6 +103,7 @@ urlpatterns = [
     # 캘린더에서 모두 갖고오기(GET)
     path('getCalendar/<int:id>/',
          views.getCalendar_all),
+     # 캘린더에서 해당 달 갖고오기 
     path('getCalendar/<int:id>/<int:year>/<int:month>/',
          views.getCalendar_month),
     # 캘린더 아웃핏 바꾸기
@@ -111,4 +112,8 @@ urlpatterns = [
     # 아웃핏 statistic
     path('outfitStatsBest/<int:id>/', views.outfit_stats_best5),
     path('outfitStatsWorst/<int:id>/', views.outfit_stats_worst5)
+
+    # 일주일치 옷 추천 ('POST'),GET
+    # path('weekRecommend/<int:id>/')
+
 ]

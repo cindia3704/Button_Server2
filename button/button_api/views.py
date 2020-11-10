@@ -147,6 +147,39 @@ def post_userInput(request):
 # knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
 
 
+# @api_view(['POST'])
+# def week_recommendation(request,id,season):
+#     try:
+#         user= User.objects.get(id=id)
+
+#     except User.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+
+#     style="CAUSUAL"
+#     knns = KNN.objects.filter(id=id)
+#     kn=[]
+#     for i in range(0,5):
+#         kn.append(0)
+#     if len(knns)!=0:
+#         for k in knns:
+#             if "CASUAL":
+#                 kn[0]=kn[0]+1
+#             elif "SEMI-FORMAL":
+#                 kn[1] = kn[1]+1
+#             elif "FORMAL":
+#                 kn[2] = kn[2]+1
+#             elif "OUTDOOR":
+#                 kn[3] = kn[3]+1
+#             else:
+#                 kn[4] = kn[4]+1
+#         index=0
+#         for i in kn:
+#             if i>index:
+#                 index=i
+
+#         print(index)
+
+
 def get_randomCloth(id, style, season):
     print("inside rand")
     print(season)
@@ -500,17 +533,19 @@ def cloth_list_season(request, id, season):
                 clo.append(clothes)
 
         print(closet)
+        print(clo)
+
         serializer = Cloth_SpecificSerializer(clo, many=True)
         print(serializer)
         return Response(serializer.data)
 
 
-@ api_view(['GET'])
-@ parser_classes([MultiPartParser])
-@ permission_classes([FriendListPermission | OwnerPermission])
-def cloth_list_season(request, id, days_not_worn):
-    if request.method == 'GET':
-        closet = Cloth_Specific.objects.filter(id=id)
+# @ api_view(['GET'])
+# @ parser_classes([MultiPartParser])
+# @ permission_classes([FriendListPermission | OwnerPermission])
+# def cloth_list_season(request, id, days_not_worn):
+#     if request.method == 'GET':
+#         closet = Cloth_Specific.objects.filter(id=id)
 
 
 @ api_view(['POST'])
