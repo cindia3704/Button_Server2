@@ -424,7 +424,7 @@ def register(request):
             current_site = get_current_site(request).domain
             relativeLink = reverse('email-verify')
 
-            absurl = 'http://'+current_site+relativeLink + \
+            absurl = 'https://'+current_site+relativeLink + \
                 "?email="+str(account.get_email())
             email_body = ""+str(account.get_nickname()) + "님, 안녕하세요.\n옷장 관리 및 코디 어플 \'button\'입니다.\n\n"\
                 '저희 버튼에 회원가입을 해주셔서 감사합니다.\n아래 링크로 이메일 인증을 완료해주세요\n '+absurl
@@ -833,6 +833,7 @@ def cloth_detail(request, id, clothID):
             # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
             "data": serializer.data
         }
+
         print(send_data)
         r = requests.post(
             'http://141.223.121.163:8000/postCloth/', json=send_data)
@@ -1054,7 +1055,7 @@ def send_friendRequest(request, id, userEmail):
             current_site = get_current_site(request).domain
             relativeLink = reverse('verify-friend')
 
-            absurl = 'http://'+current_site+relativeLink + \
+            absurl = 'https://'+current_site+relativeLink + \
                 "?email="+str(recieverEmail)+"&sender="+str(senderEmail)
             email_body = ""+str(reciever.get_nickname()) + "님, 안녕하세요.\n옷장 관리 및 코디 어플 \'button\'입니다.\n\n" \
                 + str(user.get_nickname()) + \
