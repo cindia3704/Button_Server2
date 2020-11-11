@@ -186,7 +186,7 @@ class Cloth_Specific(models.Model):
 
 class Outfit_Specific(models.Model):
     id = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name="User")
+        User, on_delete=models.CASCADE, verbose_name="User", related_name="user_outfit")
     outfitID = models.AutoField(primary_key=True,
                                 verbose_name="outfitID",
                                 unique=True)
@@ -194,6 +194,8 @@ class Outfit_Specific(models.Model):
         max_length=64, verbose_name="outfit name", default='NONE')
     count = models.IntegerField(
         verbose_name="입은 횟수", default=0)
+    outfitBy = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Outfit_by", related_name="outfit_by", null=True)
     # dates_worn = models.ManyToManyField(
     #     'Calendar_Specific', related_name="outfit_worn", blank=True)
     # dates_outfit_worn = models.ManyToOneRel(
@@ -203,6 +205,12 @@ class Outfit_Specific(models.Model):
 
     def get_count(self):
         return self.count
+
+    def get_outfitby(self):
+        return self.outfitBy
+
+    def get_owner(self):
+        return self.id
 
 
 class Calendar_Specific(models.Model):
@@ -248,6 +256,9 @@ class KNN(models.Model):
 
     def set_style(self, styleName):
         style = styleName
+
+    def get_style(self):
+        return self.style
 
 
 class Friend(models.Model):

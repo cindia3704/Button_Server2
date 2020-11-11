@@ -71,7 +71,7 @@ class OutfitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Outfit_Specific
         fields = ('id', 'outfitID', 'outfitName',
-                  'clothes', 'count')
+                  'clothes', 'count', 'outfitBy')
         extra_kwargs = {'clothes': {'required': False}}
 
 

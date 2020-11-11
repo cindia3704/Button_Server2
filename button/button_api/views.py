@@ -27,8 +27,9 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib.auth.hashers import make_password
 # from drf_yasg.utils import swagger_auto_schema
 # from drf_yasg import openapi
+import requests
 import random
-#from random import *
+# from random import *
 import string
 from django.views.generic import View
 from django.shortcuts import redirect
@@ -107,6 +108,12 @@ def post_userInput(request):
             knn_input.save()
             # if season=="WINTER" and style_res=="VACANCE":
             #     style_res="CASUAL"
+            #run_rec_algo(id, style_res, season)
+            # if res_ == "does not exist":
+            #     return Response({"response": "not enough clothes"})
+            # elif res_ == "more clothes":
+            #     return Response({"response": "not enough clothes"})
+
             # ret_result = False
             # while ret_result != True:
             #     print("get rand")
@@ -147,37 +154,100 @@ def post_userInput(request):
 # knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
 
 
-# @api_view(['POST'])
-# def week_recommendation(request,id,season):
-#     try:
-#         user= User.objects.get(id=id)
+def run_rec_algo(id, style, season):
+    ret_result = False
+    count = 0
+    while ret_result != True:
+        print("count:"+str(count))
+        count = count+1
+        if count == 10 and ret_result == False:
+            return "more clothes"
+            # return Response({"response": "not enough clothes"})
+        print("season: "+str(season)+"    style: "+str(style))
+        rand_cloth = get_randomCloth(id, style, season)
+        print(rand_cloth)
+        if rand_cloth == "does not exist":
+            return rand_cloth
+            # return Response({"response": "not enough clothes"})
+        print(rand_cloth)
+        bi_lstm_input = rand_cloth.get_photo()
+        bi_data = {}
+        bi_data["bi_lstm_input"] = Cloth_SpecificSerializer(
+            Cloth_Specific.objects.get(photo=bi_lstm_input)).data
 
-#     except User.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
+        bi_data["id"] = id
+        bi_data["style"] = style
+        bi_data["season"] = season
+        print("bi_data:")
+        print(bi_data)
+        # bi_lstm_output = set_generation(bi_data)
+        #bi_lstm_output = ["121.jpg", "56.jpg", "442.jpg", "395.jpg"]
+        bi_lstm_result = []
+        for cloth_result in bi_lstm_output:
+            print(cloth_result)
+            bi_lstm_result.append(
+                Cloth_Specific.objects.get(id=id, photo=cloth_result))
+        if rand_cloth.get_category() == "TOP":
+            print("TOP")
+            result = is_valid_outfit_top(
+                bi_lstm_result[::-1], id, rand_cloth, season)
+            print(ret_result)
+            if result == "redo":
+                ret_result = False
+            else:
+                ret_result = True
+        else:
+            result = is_valid_outfit_dress(
+                bi_lstm_result[::-1], id, rand_cloth, season)
+            print(ret_result)
+            ret_result = True
+    return result
 
-#     style="CAUSUAL"
-#     knns = KNN.objects.filter(id=id)
-#     kn=[]
-#     for i in range(0,5):
-#         kn.append(0)
-#     if len(knns)!=0:
-#         for k in knns:
-#             if "CASUAL":
-#                 kn[0]=kn[0]+1
-#             elif "SEMI-FORMAL":
-#                 kn[1] = kn[1]+1
-#             elif "FORMAL":
-#                 kn[2] = kn[2]+1
-#             elif "OUTDOOR":
-#                 kn[3] = kn[3]+1
-#             else:
-#                 kn[4] = kn[4]+1
-#         index=0
-#         for i in kn:
-#             if i>index:
-#                 index=i
 
-#         print(index)
+@ api_view(['GET'])
+def week_recommendation(request, id, season):
+    try:
+        user = User.objects.get(id=id)
+
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        style = ""
+        knns_casual = KNN.objects.filter(id=id, style="CASUAL")
+        knns_semi = KNN.objects.filter(id=id, style="SEMI-FORMAL")
+        knns_formal = KNN.objects.filter(id=id, style="FORMAL")
+        knns_outdoor = KNN.objects.filter(id=id, style="OUTDOOR")
+        knns_vacance = KNN.objects.filter(id=id, style="VACANCE")
+
+        sizeknn = max(len(knns_casual), len(knns_semi), len(
+            knns_formal), len(knns_outdoor), len(knns_vacance))
+        if sizeknn == 0:
+            style = "CASUAL"
+            # return Response({"response": "no knn data"})
+        else:
+            for i in [knns_casual, knns_semi, knns_formal, knns_outdoor, knns_vacance]:
+                if len(i) == sizeknn:
+                    print(i)
+                    style = i[0].get_style()
+                    break
+
+        print(style)
+        if season == "WINTER" and style == "VACANCE":
+            style = "CASUAL"
+        week_ = []
+        for i in range(0, 7):
+            res_ = run_rec_algo(id, style, season)
+            if res_ == "does not exist":
+                return Response({"response": "not enough clothes"})
+            elif res_ == "more clothes":
+                return Response({"response": "not enough clothes"})
+            else:
+                serializer = Cloth_SpecificSerializer(res_, many=True)
+                week_.append(serializer.data)
+        print(week_)
+        return Response(week_, status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_randomCloth(id, style, season):
@@ -484,14 +554,23 @@ def cloth_list(request, id):
         serializer = Cloth_SpecificSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            print("start extract")
-            print(serializer.data)
+            saved_object = serializer.instance
+            img_path = saved_object.photo.path
+            send_data = {
+                "photo": img_path,
+                # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
+                "data": serializer.data
+            }
+            print(send_data)
+            r = requests.post(
+                'http://0.0.0.0:8000/postCloth/', json=send_data)
+            print(r)
             # closet_ = Cloth_Specific.objects.filter(id=id)
             # number_ = len(closet_)-1
             # print(number_)
-            #extract_features(id, serializer.data)
+            # extract_features(id, serializer.data)
             print("end extract")
-            #seasons = request.data.get('season')
+            # seasons = request.data.get('season')
             # tf = []
             # for i in range(0, 4):
             #     tf.append(False)
@@ -513,7 +592,7 @@ def cloth_list(request, id):
 
             # extract feature!!
             # closet_=Cloth_Specific.objects.filter(id=id)
-            #serializer_ = Cloth_SpecificSerializer(closet_, many=True)
+            # serializer_ = Cloth_SpecificSerializer(closet_, many=True)
             # extract(id,serializer.data,number)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -523,7 +602,7 @@ def cloth_list(request, id):
 @ parser_classes([MultiPartParser])
 @ permission_classes([FriendListPermission | OwnerPermission])
 def cloth_list_season(request, id, season):
-
+    print("season="+str(season))
     if request.method == 'GET':
         closet = Cloth_Specific.objects.filter(id=id)
         clo = []
@@ -726,6 +805,17 @@ def cloth_detail(request, id, clothID):
         serializer = Cloth_SpecificSerializer(cloth, data=request.data)
         if serializer.is_valid():
             serializer.save()
+            saved_object = serializer.instance
+            img_path = saved_object.photo.path
+            send_data = {
+                "photo": img_path,
+                # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
+                "data": serializer.data
+            }
+            print(send_data)
+            r = requests.post(
+                'http://0.0.0.0:8000/postCloth/', json=send_data)
+            print(r)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
@@ -734,6 +824,19 @@ def cloth_detail(request, id, clothID):
         print(outfits)
         for out in outfits:
             out.delete()
+
+        serializer = Cloth_SpecificSerializer(cloth, data=request.data)
+        saved_object = serializer.instance
+        img_path = saved_object.photo.path
+        send_data = {
+            "photo": img_path,
+            # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
+            "data": serializer.data
+        }
+        print(send_data)
+        r = requests.post(
+            'http://0.0.0.0:8000/postCloth/', json=send_data)
+        print(r)
 
         cloth.delete()
         # outfitIDS = cloth.get_outfit()
@@ -803,7 +906,21 @@ def outfit_list(request, id):
     #     return Response({'response': "You don't have permission for access!"})
 >>>>>>> 376f70f... correct permissions
     if request.method == 'GET':
-        outfit_closet = Outfit_Specific.objects.filter(id=id)
+        outfit_closet = Outfit_Specific.objects.filter(
+            id=id, outfitBy=id)
+        serializer = OutfitSerializer(outfit_closet, many=True)
+        return Response(serializer.data)
+
+
+@ api_view(['GET'])
+@ permission_classes([FriendListPermission | OwnerPermission])
+def outfit_list_friend(request, id):
+    user = request.user
+    # if id != user.id:
+    #     return Response({'response': "You don't have permission for access!"})
+    if request.method == 'GET':
+        outfit_closet = Outfit_Specific.objects.filter(
+            id=id).exclude(outfitBy=id)
         serializer = OutfitSerializer(outfit_closet, many=True)
         return Response(serializer.data)
 
@@ -822,7 +939,8 @@ def outfit_change(request, id, outfitID):
     def get_id():
         return id
     try:
-        outfit = Outfit_Specific.objects.get(id=id, outfitID=outfitID)
+        outfit = Outfit_Specific.objects.get(outfitID=outfitID)
+        # print(request.id)
 
     except Outfit_Specific.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -831,12 +949,18 @@ def outfit_change(request, id, outfitID):
     if request.method == 'PATCH':
         serializer = OutfitSerializer(outfit, data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            if outfit.get_outfitby() != id and outfit.get_owner() != id:
+                return Response({"response": "cannot delete cloth"})
+            else:
+                serializer.save()
+                return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
-        outfit.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if outfit.get_outfitby() != id and outfit.get_owner() != id:
+            return Response({"response": "cannot delete cloth"})
+        else:
+            outfit.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
     elif request.method == 'GET':
         serializer = OutfitSerializer(outfit)
