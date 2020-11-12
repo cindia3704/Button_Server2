@@ -557,11 +557,13 @@ def cloth_list(request, id):
             serializer.save()
             saved_object = serializer.instance
             img_path = saved_object.photo.path
+            cloth_post = Cloth_Specific.objects.get(
+                id=id, clothID=serializer.data["clothID"])
             print("serializer.data:"+str(serializer.data))
             print("season from serializer: " +
-                  str(serializer.data.get("season")))
+                  str(cloth_post.get_season()))
             se_ = []
-            for s in serializer.data.get("season"):
+            for s in cloth_post.get_season():
                 se_.append(s)
             print(se_)
             send_data = {
