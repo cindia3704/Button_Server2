@@ -554,13 +554,15 @@ def cloth_list(request, id):
         # serializer = Cloth_SpecificSerializer(data=data)
         serializer = Cloth_SpecificSerializer(data=request.data)
         if serializer.is_valid():
-            # serializer.save()
+            print(request.data.get('season'))
+            print(request.data.get("season"))
+            serializer.save()
             saved_object = serializer.instance
             img_path = saved_object.photo.path
-            print(request.data.get('season'))
+
             # cloth_post = Cloth_Specific.objects.get(
             #     id=id, clothID=request.data["clothID"])
-            print(request.data.get("season"))
+            # print(request.data.get("season"))
 
             se_ = []
             # for s in request.data.get("season"):
@@ -577,7 +579,7 @@ def cloth_list(request, id):
             r = requests.post(
                 'http://141.223.121.163:8000/postCloth/', json=send_data)
             print(r)
-            serializer.save()
+            # serializer.save()
             # closet_ = Cloth_Specific.objects.filter(id=id)
             # number_ = len(closet_)-1
             # print(number_)
