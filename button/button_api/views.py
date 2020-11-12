@@ -557,7 +557,7 @@ def cloth_list(request, id):
             print(request.data)
             da = request.data.get('data')
             print(da)
-            da_season = da.get('season')
+            da_season = da['season']
             print(da_season)
             serializer.save()
             saved_object = serializer.instance
