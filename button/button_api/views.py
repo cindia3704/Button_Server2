@@ -460,6 +460,7 @@ def retLoggedUser(request, userEmail):
         return Response(serializer.data)
 
 
+@ permission_classes([IsAuthenticated])
 @ api_view(['GET'])
 def user_list(request):
     # 모든 사용자 보기 & 추가
@@ -556,6 +557,7 @@ def cloth_list(request, id):
             serializer.save()
             saved_object = serializer.instance
             img_path = saved_object.photo.path
+            print("serializer.data:"+str(serializer.data))
             send_data = {
                 "photo": img_path,
                 # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
