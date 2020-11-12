@@ -568,8 +568,9 @@ def cloth_list(request, id):
             # sa = s.copy()
             # print(sa)
             se_ = []
-            style = request.data.get('style')
+            style = serializer.data.get('style')
             print(style)
+
             # if "HWAN" in da_season:
             #     se_.append("HWAN")
             # if "WINTER" in da_season:
