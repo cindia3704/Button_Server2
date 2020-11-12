@@ -557,16 +557,16 @@ def cloth_list(request, id):
             print(request.data)
             da = request.data.get('data')
             print(da)
-            da_season = da['season']
+            da_season = da["season"]
             print(da_season)
             serializer.save()
             saved_object = serializer.instance
             img_path = saved_object.photo.path
             # print(request.data['season'])
             print(serializer.data['season'])
-            s = serializer.data['season']
-            sa = s.copy()
-            print(sa)
+            # s = serializer.data['season']
+            # sa = s.copy()
+            # print(sa)
             se_ = []
             if "HWAN" in da_season:
                 se_.append("HWAN")
