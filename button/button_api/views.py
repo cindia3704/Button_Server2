@@ -560,7 +560,7 @@ def cloth_list(request, id):
             serializer.save()
             saved_object = serializer.instance
             img_path = saved_object.photo.path
-            print(request.data['season'])
+            # print(request.data['season'])
             print(serializer.data['season'])
             s = serializer.data['season']
             print(s.size())
