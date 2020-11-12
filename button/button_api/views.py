@@ -554,7 +554,7 @@ def cloth_list(request, id):
         # serializer = Cloth_SpecificSerializer(data=data)
         serializer = Cloth_SpecificSerializer(data=request.data)
         if serializer.is_valid():
-            print(requst.data)
+            print(request.data)
             print(request.data.get('season'))
             print(request.data.get("season"))
             serializer.save()
