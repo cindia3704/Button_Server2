@@ -555,8 +555,10 @@ def cloth_list(request, id):
         serializer = Cloth_SpecificSerializer(data=request.data)
         if serializer.is_valid():
             print(request.data)
-            print(request.data.get('season'))
-            print(request.data.get("season"))
+            da = request.data.get('data')
+            print(da)
+            da_season = da.get('season')
+            print(da_season)
             serializer.save()
             saved_object = serializer.instance
             img_path = saved_object.photo.path
@@ -566,11 +568,11 @@ def cloth_list(request, id):
             sa = s.copy()
             print(sa)
             se_ = []
-            if "HWAN" in sa:
+            if "HWAN" in da_season:
                 se_.append("HWAN")
-            if "WINTER" in sa:
+            if "WINTER" in da_season:
                 se_.append("WINTER")
-            if "SUMMER" in sa:
+            if "SUMMER" in da_season:
                 se_.append("SUMMER")
             # cloth_post = Cloth_Specific.objects.get(
             #     id=id, clothID=request.data["clothID"])
