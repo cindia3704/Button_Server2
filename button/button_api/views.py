@@ -563,13 +563,14 @@ def cloth_list(request, id):
             # print(request.data['season'])
             print(serializer.data['season'])
             s = serializer.data['season']
-
+            sa = s.copy()
+            print(sa)
             se_ = []
-            if "HWAN" in s:
+            if "HWAN" in sa:
                 se_.append("HWAN")
-            if "WINTER" in s:
+            if "WINTER" in sa:
                 se_.append("WINTER")
-            if "SUMMER" in s:
+            if "SUMMER" in sa:
                 se_.append("SUMMER")
             # cloth_post = Cloth_Specific.objects.get(
             #     id=id, clothID=request.data["clothID"])
