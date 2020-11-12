@@ -559,10 +559,12 @@ def cloth_list(request, id):
             img_path = saved_object.photo.path
             print("serializer.data:"+str(serializer.data))
             send_data = {
+                "id": request.data["id"],
                 "photo": img_path,
                 # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
-                "data": serializer.data
+                "season": request.data["season"],
             }
+            print("sending")
             print(send_data)
             r = requests.post(
                 'http://141.223.121.163:8000/postCloth/', json=send_data)
