@@ -563,12 +563,12 @@ def cloth_list(request, id):
             se_ = []
             for s in serializer.data.get("season"):
                 se_.append(s)
-
+            print(se_)
             send_data = {
                 "id": id,
                 "photo": img_path,
                 # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
-                "season": se
+                "season": se_
             }
             print("sending")
             print(send_data)
