@@ -582,7 +582,7 @@ def cloth_list(request, id):
             print("sending")
             print(send_data)
             r = requests.post(
-                'http://141.223.121.163:8000/postCloth/', json=send_data)
+                'http://141.223.121.163:9999/postCloth/', json=send_data)
             print(r)
             # serializer.save()
             # closet_ = Cloth_Specific.objects.filter(id=id)
@@ -866,7 +866,7 @@ def cloth_detail(request, id, clothID):
             }
             print(send_data)
             r = requests.post(
-                'http://141.223.121.163:8000/postCloth/', json=send_data)
+                'http://141.223.121.163:9999/changeCloth/', json=send_data)
             print(r)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -888,7 +888,7 @@ def cloth_detail(request, id, clothID):
 
         print(send_data)
         r = requests.post(
-            'http://141.223.121.163:8000/postCloth/', json=send_data)
+            'http://141.223.121.163:9999/deleteCloth/', json=send_data)
         print(r)
 
         cloth.delete()
