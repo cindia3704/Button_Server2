@@ -557,14 +557,13 @@ def cloth_list(request, id):
             serializer.save()
             saved_object = serializer.instance
             img_path = saved_object.photo.path
+            print(request.data.get("season"))
+            # cloth_post = Cloth_Specific.objects.get(
+            #     id=id, clothID=request.data["clothID"])
+            print(request.data.get("season"))
 
-            cloth_post = Cloth_Specific.objects.get(
-                id=id, clothID=serializer.data["clothID"])
-            print("serializer.data:"+str(serializer.data))
-            print("season from serializer: " +
-                  str(cloth_post.get_season()))
             se_ = []
-            for s in cloth_post.get_season():
+            for s in request.data.get("season"):
                 se_.append(s)
             print(se_)
             send_data = {
@@ -766,6 +765,8 @@ def outfit_cloth_change(request, id, outfitID, clothID1, clothID2):
 def cloth_category_list(request, id, category):
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
     user = request.user
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -781,6 +782,12 @@ def cloth_category_list(request, id, category):
 =======
     user = request.user
 >>>>>>> 5758d9e... change season field3
+=======
+    user=request.user
+>>>>>>> 53e5b62... change season field10
+=======
+    user = request.user
+>>>>>>> 891885e... change season field11
     # if id != user.id:
     #     return Response({'response': "You don't have permission for access!"})
 >>>>>>> 391b1f7... change auth for clothlist
@@ -801,6 +808,8 @@ def cloth_detail(request, id, clothID):
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
     user = request.user
 <<<<<<< HEAD
 =======
@@ -810,6 +819,12 @@ def cloth_detail(request, id, clothID):
 =======
     user = request.user
 >>>>>>> 5758d9e... change season field3
+=======
+    user=request.user
+>>>>>>> 53e5b62... change season field10
+=======
+    user = request.user
+>>>>>>> 891885e... change season field11
 
 <<<<<<< HEAD
 >>>>>>> 35aa25d... last last
