@@ -108,7 +108,7 @@ def post_userInput(request):
             knn_input.save()
             # if season=="WINTER" and style_res=="VACANCE":
             #     style_res="CASUAL"
-            #run_rec_algo(id, style_res, season)
+            # run_rec_algo(id, style_res, season)
             # if res_ == "does not exist":
             #     return Response({"response": "not enough clothes"})
             # elif res_ == "more clothes":
@@ -181,7 +181,7 @@ def run_rec_algo(id, style, season):
         print("bi_data:")
         print(bi_data)
         # bi_lstm_output = set_generation(bi_data)
-        #bi_lstm_output = ["121.jpg", "56.jpg", "442.jpg", "395.jpg"]
+        # bi_lstm_output = ["121.jpg", "56.jpg", "442.jpg", "395.jpg"]
         bi_lstm_result = []
         for cloth_result in bi_lstm_output:
             print(cloth_result)
@@ -558,15 +558,16 @@ def cloth_list(request, id):
             saved_object = serializer.instance
             img_path = saved_object.photo.path
             print("serializer.data:"+str(serializer.data))
-            send_data = {
-                "id": request.data["id"],
+            print("season from serializer: "+str(serializer.data.get("season"))
+            send_data={
+                "id": id,
                 "photo": img_path,
                 # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
-                "season": request.data["season"],
+                "season": serializer.data.get("season")
             }
             print("sending")
             print(send_data)
-            r = requests.post(
+            r=requests.post(
                 'http://141.223.121.163:8000/postCloth/', json=send_data)
             print(r)
             # closet_ = Cloth_Specific.objects.filter(id=id)
@@ -608,17 +609,17 @@ def cloth_list(request, id):
 def cloth_list_season(request, id, season):
     print("season="+str(season))
     if request.method == 'GET':
-        closet = Cloth_Specific.objects.filter(id=id)
-        clo = []
+        closet=Cloth_Specific.objects.filter(id=id)
+        clo=[]
         for clothes in closet:
-            ses = clothes.get_season()
+            ses=clothes.get_season()
             if season in ses:
                 clo.append(clothes)
 
         print(closet)
         print(clo)
 
-        serializer = Cloth_SpecificSerializer(clo, many=True)
+        serializer=Cloth_SpecificSerializer(clo, many=True)
         print(serializer)
         return Response(serializer.data)
 
@@ -635,11 +636,11 @@ def cloth_list_season(request, id, season):
 @ permission_classes([OwnerPermission])
 def change_password(request, id):
     try:
-        user = User.objects.get(id=id)
+        user=User.objects.get(id=id)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
-        serializer = ChangePasswordSerializer(data=request.data)
+        serializer=ChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
             if not user.check_password(serializer.data.get("password")):
                 print(serializer.data.get("password"))
@@ -659,19 +660,19 @@ def change_password(request, id):
 @ api_view(['POST'])
 def find_password(request, userEmail):
     try:
-        user = User.objects.get(userEmail=userEmail)
+        user=User.objects.get(userEmail=userEmail)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
-        current_site = get_current_site(request).domain
-        newPass = letters = string.ascii_lowercase
-        result_str = ''.join(random.choice(letters) for i in range(10))
+        current_site=get_current_site(request).domain
+        newPass=letters=string.ascii_lowercase
+        result_str=''.join(random.choice(letters) for i in range(10))
         print(result_str)
-        email_body = ""+str(user.get_nickname()) + \
+        email_body=""+str(user.get_nickname()) + \
             ' 님 안녕하세요.\n옷장 관리 및 코디 어플 \'button\'입니다.\n\n임시 비밀번호: ' + \
             result_str+'\n로그인을 한 후 반드시 비밀번호를 변경해 주시기 바랍니다.'
         # email_body.attach(logo_data())
-        data_ = {'email_body': email_body, 'to_email': str(user.get_email()),
+        data_={'email_body': email_body, 'to_email': str(user.get_email()),
                  'email_subject': '비밀번호 찾기'}
         Util.send_email(data_)
         user.set_password(result_str)
@@ -697,8 +698,8 @@ def find_password(request, userEmail):
 @ permission_classes([FriendListPermission | OwnerPermission])
 def outfit_cloth_add(request, id, outfitID, clothID):
     try:
-        outfit_ = Outfit_Specific.objects.get(outfitID=outfitID)
-        cloth = Cloth_Specific.objects.get(clothID=clothID)
+        outfit_=Outfit_Specific.objects.get(outfitID=outfitID)
+        cloth=Cloth_Specific.objects.get(clothID=clothID)
     except Outfit_Specific.DoesNotExist:
         # print('outfit not found')
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -716,8 +717,8 @@ def outfit_cloth_add(request, id, outfitID, clothID):
 @ permission_classes([FriendListPermission | OwnerPermission])
 def outfit_cloth_del(request, id, outfitID, clothID):
     try:
-        outfit_ = Outfit_Specific.objects.get(outfitID=outfitID)
-        cloth = Cloth_Specific.objects.get(clothID=clothID)
+        outfit_=Outfit_Specific.objects.get(outfitID=outfitID)
+        cloth=Cloth_Specific.objects.get(clothID=clothID)
     except Outfit_Specific.DoesNotExist:
         print('outfit not found')
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -725,7 +726,7 @@ def outfit_cloth_del(request, id, outfitID, clothID):
         print('cloth not found')
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'DELETE':
-        del_ = cloth.outfit.get(outfitID=outfitID)
+        del_=cloth.outfit.get(outfitID=outfitID)
         cloth.outfit.remove(outfitID)
         cloth.save()
         return Response(status=status.HTTP_201_CREATED)
@@ -735,9 +736,9 @@ def outfit_cloth_del(request, id, outfitID, clothID):
 @ permission_classes([FriendListPermission | OwnerPermission])
 def outfit_cloth_change(request, id, outfitID, clothID1, clothID2):
     try:
-        outfit_ = Outfit_Specific.objects.get(outfitID=outfitID)
-        cloth1 = Cloth_Specific.objects.get(clothID=clothID1)
-        cloth2 = Cloth_Specific.objects.get(clothID=clothID2)
+        outfit_=Outfit_Specific.objects.get(outfitID=outfitID)
+        cloth1=Cloth_Specific.objects.get(clothID=clothID1)
+        cloth2=Cloth_Specific.objects.get(clothID=clothID2)
     except Outfit_Specific.DoesNotExist:
         print('outfit not found')
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -755,6 +756,7 @@ def outfit_cloth_change(request, id, outfitID, clothID1, clothID2):
 @ api_view(['GET'])
 @ permission_classes([OwnerPermission | FriendListPermission])
 def cloth_category_list(request, id, category):
+<<<<<<< HEAD
     user = request.user
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -764,12 +766,15 @@ def cloth_category_list(request, id, category):
 >>>>>>> 35aa25d... last last
     # return Response({'response': "You don't have permission for access!"})
 =======
+=======
+    user=request.user
+>>>>>>> 6951918... change season field
     # if id != user.id:
     #     return Response({'response': "You don't have permission for access!"})
 >>>>>>> 391b1f7... change auth for clothlist
     if request.method == 'GET':
-        closet = Cloth_Specific.objects.filter(id=id, category=category)
-        serializer = Cloth_SpecificSerializer(closet, many=True)
+        closet=Cloth_Specific.objects.filter(id=id, category=category)
+        serializer=Cloth_SpecificSerializer(closet, many=True)
         return Response(serializer.data)
 
 
@@ -777,14 +782,18 @@ def cloth_category_list(request, id, category):
 @ permission_classes([FriendListPermission | OwnerPermission])
 def cloth_detail(request, id, clothID):
     try:
-        cloth = Cloth_Specific.objects.get(id=id, clothID=clothID)
+        cloth=Cloth_Specific.objects.get(id=id, clothID=clothID)
 
     except Cloth_Specific.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+<<<<<<< HEAD
     user = request.user
 <<<<<<< HEAD
 =======
+=======
+    user=request.user
+>>>>>>> 6951918... change season field
 
 <<<<<<< HEAD
 >>>>>>> 35aa25d... last last
@@ -796,50 +805,50 @@ def cloth_detail(request, id, clothID):
 >>>>>>> 391b1f7... change auth for clothlist
 
     if request.method == 'GET':
-        serializer = Cloth_SpecificSerializer(cloth)
+        serializer=Cloth_SpecificSerializer(cloth)
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = Cloth_SpecificSerializer(cloth, data=request.data)
+        serializer=Cloth_SpecificSerializer(cloth, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'PATCH':
-        serializer = Cloth_SpecificSerializer(cloth, data=request.data)
+        serializer=Cloth_SpecificSerializer(cloth, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            saved_object = serializer.instance
-            img_path = saved_object.photo.path
-            send_data = {
+            saved_object=serializer.instance
+            img_path=saved_object.photo.path
+            send_data={
                 "photo": img_path,
                 # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
                 "data": serializer.data
             }
             print(send_data)
-            r = requests.post(
+            r=requests.post(
                 'http://141.223.121.163:8000/postCloth/', json=send_data)
             print(r)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
-        outfits = Outfit_Specific.objects.filter(clothes=clothID)
+        outfits=Outfit_Specific.objects.filter(clothes=clothID)
         print("hihihihi")
         print(outfits)
         for out in outfits:
             out.delete()
 
-        serializer = Cloth_SpecificSerializer(cloth, data=request.data)
-        saved_object = serializer.instance
-        img_path = saved_object.photo.path
-        send_data = {
+        serializer=Cloth_SpecificSerializer(cloth, data=request.data)
+        saved_object=serializer.instance
+        img_path=saved_object.photo.path
+        send_data={
             "photo": img_path,
             # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
             "data": serializer.data
         }
 
         print(send_data)
-        r = requests.post(
+        r=requests.post(
             'http://141.223.121.163:8000/postCloth/', json=send_data)
         print(r)
 
@@ -860,13 +869,13 @@ def cloth_detail(request, id, clothID):
 @ api_view(['POST'])
 @ permission_classes([FriendListPermission | OwnerPermission])
 def saveOutfit(request, id):
-    user = request.user
+    user=request.user
     # if id != user.id:
     # return Response({'response': "You don't have permission for access!"})
 
     # POST부분 authentication 추가!!!
     if request.method == 'POST':
-        serializer = OutfitSerializer(data=request.data)
+        serializer=OutfitSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -906,27 +915,27 @@ def outfit_list(request, id):
 =======
 @ permission_classes([FriendListPermission | OwnerPermission])
 def outfit_list(request, id):
-    user = request.user
+    user=request.user
     # if id != user.id:
     #     return Response({'response': "You don't have permission for access!"})
 >>>>>>> 376f70f... correct permissions
     if request.method == 'GET':
-        outfit_closet = Outfit_Specific.objects.filter(
+        outfit_closet=Outfit_Specific.objects.filter(
             id=id, outfitBy=id)
-        serializer = OutfitSerializer(outfit_closet, many=True)
+        serializer=OutfitSerializer(outfit_closet, many=True)
         return Response(serializer.data)
 
 
 @ api_view(['GET'])
 @ permission_classes([FriendListPermission | OwnerPermission])
 def outfit_list_friend(request, id):
-    user = request.user
+    user=request.user
     # if id != user.id:
     #     return Response({'response': "You don't have permission for access!"})
     if request.method == 'GET':
-        outfit_closet = Outfit_Specific.objects.filter(
+        outfit_closet=Outfit_Specific.objects.filter(
             id=id).exclude(outfitBy=id)
-        serializer = OutfitSerializer(outfit_closet, many=True)
+        serializer=OutfitSerializer(outfit_closet, many=True)
         return Response(serializer.data)
 
 
@@ -944,15 +953,15 @@ def outfit_change(request, id, outfitID):
     def get_id():
         return id
     try:
-        outfit = Outfit_Specific.objects.get(outfitID=outfitID)
+        outfit=Outfit_Specific.objects.get(outfitID=outfitID)
         # print(request.id)
 
     except Outfit_Specific.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    user = request.user
+    user=request.user
     if request.method == 'PATCH':
-        serializer = OutfitSerializer(outfit, data=request.data)
+        serializer=OutfitSerializer(outfit, data=request.data)
         if serializer.is_valid():
             if outfit.get_outfitby() != id and outfit.get_owner() != id:
                 return Response({"response": "cannot delete cloth"})
@@ -968,18 +977,18 @@ def outfit_change(request, id, outfitID):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     elif request.method == 'GET':
-        serializer = OutfitSerializer(outfit)
+        serializer=OutfitSerializer(outfit)
         return Response(serializer.data)
 
 
 class VerifyEmail(views.APIView):
     def get(self, request):
-        email = request.GET.get('email')
+        email=request.GET.get('email')
         try:
-            user = User.objects.get(userEmail=email)
+            user=User.objects.get(userEmail=email)
 
             if not user.confirmedEmail:
-                user.confirmedEmail = True
+                user.confirmedEmail=True
                 user.save()
             return Response({'email': 'Successfully activated'}, status=status.HTTP_201_CREATED)
         except jwt.ExpiredSignatureError as identifier:
@@ -992,12 +1001,12 @@ class VerifyEmail(views.APIView):
 @ permission_classes((IsAuthenticated, OwnerPermission))
 def get_friendlist(request, id):
     try:
-        user = User.objects.get(id=id)
+        user=User.objects.get(id=id)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        friendList = Friend.objects.filter(user=user)
-        serializer = Friend_Serializer(friendList, many=True)
+        friendList=Friend.objects.filter(user=user)
+        serializer=Friend_Serializer(friendList, many=True)
         return Response(serializer.data)
 
 
@@ -1005,18 +1014,18 @@ def get_friendlist(request, id):
 @ permission_classes((IsAuthenticated, OwnerPermission))
 def specific_friend(request, id, friendId):
     try:
-        user = User.objects.get(id=id)
-        friend = User.objects.get(id=friendId)
-        friendspecific = Friend.objects.get(
+        user=User.objects.get(id=id)
+        friend=User.objects.get(id=friendId)
+        friendspecific=Friend.objects.get(
             user=user, accepted=True, frienduser=friend)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        serializer = Friend_Serializer(friendspecific)
+        serializer=Friend_Serializer(friendspecific)
         return Response(serializer.data)
     elif request.method == 'DELETE':
         friendspecific.delete()
-        friend2 = Friend.objects.get(
+        friend2=Friend.objects.get(
             user=friend, frienduser=user, accepted=True)
         friend2.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -1026,12 +1035,12 @@ def specific_friend(request, id, friendId):
 @ permission_classes((IsAuthenticated, OwnerPermission))
 def get_acceped_friendlist(request, id):
     try:
-        user = User.objects.get(id=id)
+        user=User.objects.get(id=id)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        friendList = Friend.objects.filter(user=user, accepted=True)
-        serializer = Friend_Serializer(friendList, many=True)
+        friendList=Friend.objects.filter(user=user, accepted=True)
+        serializer=Friend_Serializer(friendList, many=True)
         return Response(serializer.data)
 
 
@@ -1039,33 +1048,33 @@ def get_acceped_friendlist(request, id):
 @ permission_classes((IsAuthenticated, OwnerPermission))
 def send_friendRequest(request, id, userEmail):
     try:
-        user = User.objects.get(id=id)
-        reciever = User.objects.get(userEmail=userEmail)
+        user=User.objects.get(id=id)
+        reciever=User.objects.get(userEmail=userEmail)
     except User.DoesNotExist:
         return Response({'email': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
         if not Friend.objects.filter(user=User.objects.get(id=id), frienduser=reciever).exists():
-            new_friend = Friend()
-            new_friend.user = User.objects.get(id=id)
-            new_friend.frienduser = User.objects.get(
+            new_friend=Friend()
+            new_friend.user=User.objects.get(id=id)
+            new_friend.frienduser=User.objects.get(
                 userEmail=userEmail)
             new_friend.save()
 
         # user = User.objects.get(id=id)
-            senderEmail = user.get_email()
+            senderEmail=user.get_email()
         # reciever = User.objects.get(userEmail=userEmail)
-            recieverEmail = userEmail
+            recieverEmail=userEmail
 
-            current_site = get_current_site(request).domain
-            relativeLink = reverse('verify-friend')
+            current_site=get_current_site(request).domain
+            relativeLink=reverse('verify-friend')
 
-            absurl = 'https://'+current_site+relativeLink + \
+            absurl='https://'+current_site+relativeLink + \
                 "?email="+str(recieverEmail)+"&sender="+str(senderEmail)
-            email_body = ""+str(reciever.get_nickname()) + "님, 안녕하세요.\n옷장 관리 및 코디 어플 \'button\'입니다.\n\n" \
+            email_body=""+str(reciever.get_nickname()) + "님, 안녕하세요.\n옷장 관리 및 코디 어플 \'button\'입니다.\n\n" \
                 + str(user.get_nickname()) + \
                 "님이 친구 요청을 보냈습니다.\n아래 링크를 클릭해 친구요청을 수락해주세요.\n"+absurl
 
-            data_ = {'email_body': email_body, 'to_email': str(recieverEmail),
+            data_={'email_body': email_body, 'to_email': str(recieverEmail),
                      'email_subject': '친구 요청'}
             Util.send_email(data_)
 
@@ -1080,23 +1089,23 @@ def send_friendRequest(request, id, userEmail):
 
 class VerifyFriendRequest(views.APIView):
     def get(self, request):
-        email = request.GET.get('email')
-        senderEmail = request.GET.get('sender')
+        email=request.GET.get('email')
+        senderEmail=request.GET.get('sender')
         print('email:'+str(email))
         print('senderEmail:'+str(senderEmail))
         try:
-            friendUser = User.objects.get(userEmail=email)
-            user = User.objects.get(userEmail=senderEmail)
-            friend = Friend.objects.get(
+            friendUser=User.objects.get(userEmail=email)
+            user=User.objects.get(userEmail=senderEmail)
+            friend=Friend.objects.get(
                 user=User.objects.get(userEmail=senderEmail), frienduser=User.objects.get(userEmail=email))
             if not friend.accepted:
-                friend.accepted = True
+                friend.accepted=True
                 friend.save()
-                new_friend = Friend()
-                new_friend.user = User.objects.get(userEmail=email)
-                new_friend.frienduser = User.objects.get(
+                new_friend=Friend()
+                new_friend.user=User.objects.get(userEmail=email)
+                new_friend.frienduser=User.objects.get(
                     userEmail=senderEmail)
-                new_friend.accepted = True
+                new_friend.accepted=True
                 new_friend.save()
 
             return Response({'friendship': 'Successfully connected'}, status=status.HTTP_201_CREATED)
@@ -1110,8 +1119,8 @@ class VerifyFriendRequest(views.APIView):
 @ permission_classes([IsAuthenticated | OwnerPermission])
 def saveToCalendar(request, id, outfitID, year, month, day):
     try:
-        user = User.objects.get(id=id)
-        outfit = Outfit_Specific.objects.get(outfitID=outfitID)
+        user=User.objects.get(id=id)
+        outfit=Outfit_Specific.objects.get(outfitID=outfitID)
 
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -1120,30 +1129,30 @@ def saveToCalendar(request, id, outfitID, year, month, day):
         return Response({'outfit': 'not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'POST':
-        month_ = str(month)
+        month_=str(month)
         if month < 10:
-            month_ = "0"+str(month)
-        day_ = str(day)
+            month_="0"+str(month)
+        day_=str(day)
         if day < 10:
-            day_ = "0"+str(day)
-        date_ = str(year)+"-"+month_+"-"+day_
-        request.data['date'] = date_
+            day_="0"+str(day)
+        date_=str(year)+"-"+month_+"-"+day_
+        request.data['date']=date_
         # request.data['outfit_worn'] = outfit.outfitID
         print(request.data)
         print("-------")
-        serializer = CalendarSerializer(data=request.data)
+        serializer=CalendarSerializer(data=request.data)
         print(serializer.is_valid())
         if serializer.is_valid():
             serializer.save()
-            cal = Calendar_Specific.objects.get(id=id, date=date_)
-            cal.outfit_worn = outfit
+            cal=Calendar_Specific.objects.get(id=id, date=date_)
+            cal.outfit_worn=outfit
             cal.save()
             print(cal)
             # outfit.date_worn.add(
             # Calendar_Specific.objects.get(id=id, date=date_))
             # outfit.save()
-            count = outfit.get_count()+1
-            outfit.count = count
+            count=outfit.get_count()+1
+            outfit.count=count
             outfit.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1152,16 +1161,16 @@ def saveToCalendar(request, id, outfitID, year, month, day):
 @ api_view(['GET', 'DELETE', 'PATCH'])
 @ permission_classes([IsAuthenticated | OwnerPermission])
 def getCalendar_specific_date(request, id, year, month, day):
-    month_ = str(month)
+    month_=str(month)
     if month < 10:
-        month_ = "0"+str(month)
-    day_ = str(day)
+        month_="0"+str(month)
+    day_=str(day)
     if day < 10:
-        day_ = "0"+str(day)
-    date_ = str(year)+"-"+month_+"-"+day_
+        day_="0"+str(day)
+    date_=str(year)+"-"+month_+"-"+day_
     try:
-        user = User.objects.get(id=id)
-        calendar = Calendar_Specific.objects.get(date=date_, id=id)
+        user=User.objects.get(id=id)
+        calendar=Calendar_Specific.objects.get(date=date_, id=id)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -1169,17 +1178,17 @@ def getCalendar_specific_date(request, id, year, month, day):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = CalendarSerializer(calendar)
+        serializer=CalendarSerializer(calendar)
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
-        calendar.outfit_worn.count = calendar.outfit_worn.get_count()-1
+        calendar.outfit_worn.count=calendar.outfit_worn.get_count()-1
         calendar.outfit_worn.save()
         calendar.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     elif request.method == 'PATCH':
-        serializer = CalendarSerializer(calendar, data=request.data)
+        serializer=CalendarSerializer(calendar, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -1190,18 +1199,18 @@ def getCalendar_specific_date(request, id, year, month, day):
 @ permission_classes([IsAuthenticated | OwnerPermission])
 def change_Outfit_Calendar(request, id, calendarID, outfitID):
     try:
-        cal = Calendar_Specific.objects.get(calendarID=calendarID, id=id)
-        outfit = Outfit_Specific.objects.get(outfitID=outfitID)
+        cal=Calendar_Specific.objects.get(calendarID=calendarID, id=id)
+        outfit=Outfit_Specific.objects.get(outfitID=outfitID)
     except Calendar_Specific.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     except Outfit_Specific.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
-        cal.outfit_worn.count = cal.outfit_worn.get_count()-1
+        cal.outfit_worn.count=cal.outfit_worn.get_count()-1
         cal.save()
         cal.outfit_worn.save()
-        cal.outfit_worn = outfit
-        outfit.count = outfit.get_count()+1
+        cal.outfit_worn=outfit
+        outfit.count=outfit.get_count()+1
         outfit.save()
         cal.save()
         return Response(status=status.HTTP_201_CREATED)
@@ -1211,15 +1220,15 @@ def change_Outfit_Calendar(request, id, calendarID, outfitID):
 @ permission_classes([IsAuthenticated | OwnerPermission])
 def getCalendar_all(request, id):
     try:
-        user = User.objects.get(id=id)
+        user=User.objects.get(id=id)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        calendar = Calendar_Specific.objects.filter(id=id)
+        calendar=Calendar_Specific.objects.filter(id=id)
         # if calendar.:
         #     return Response({'calendar': 'no data'}, status=status.HTTP_201_CREATED)
-        serializer = CalendarSerializer(calendar, many=True)
+        serializer=CalendarSerializer(calendar, many=True)
         return Response(serializer.data)
 
 
@@ -1227,26 +1236,26 @@ def getCalendar_all(request, id):
 @ permission_classes([IsAuthenticated | OwnerPermission])
 def getCalendar_month(request, id, year, month):
     try:
-        user = User.objects.get(id=id)
+        user=User.objects.get(id=id)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        month_ = str(month)
+        month_=str(month)
         if month < 10:
-            month_ = "0"+str(month)
-        date__ = str(year)+"-"+str(month)+"-"
-        calendar = Calendar_Specific.objects.filter(id=id)
-        calendar__ = []
+            month_="0"+str(month)
+        date__=str(year)+"-"+str(month)+"-"
+        calendar=Calendar_Specific.objects.filter(id=id)
+        calendar__=[]
         for cal in calendar:
-            datee = str(cal.get_date())
+            datee=str(cal.get_date())
             if date__ in datee:
                 calendar__.append(cal)
 
         print(calendar__)
         # if calendar.:
         #     return Response({'calendar': 'no data'}, status=status.HTTP_201_CREATED)
-        serializer = CalendarSerializer(calendar__, many=True)
+        serializer=CalendarSerializer(calendar__, many=True)
         return Response(serializer.data)
 
 
@@ -1254,14 +1263,14 @@ def getCalendar_month(request, id, year, month):
 @ permission_classes([IsAuthenticated | OwnerPermission])
 def outfit_stats_best5(request, id):
     try:
-        user = User.objects.get(id=id)
+        user=User.objects.get(id=id)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        outfit_list = Outfit_Specific.objects.filter(id=id).order_by('count')
+        outfit_list=Outfit_Specific.objects.filter(id=id).order_by('count')
         # best_worn = sorted(outfit_list, key=(lambda x: x['count']))
-        outfit_list_ = outfit_list[::-1]
-        serializer = OutfitSerializer(outfit_list_[:4], many=True)
+        outfit_list_=outfit_list[::-1]
+        serializer=OutfitSerializer(outfit_list_[:4], many=True)
         return Response(serializer.data)
 
 
@@ -1269,13 +1278,13 @@ def outfit_stats_best5(request, id):
 @ permission_classes([IsAuthenticated | OwnerPermission])
 def outfit_stats_worst5(request, id):
     try:
-        user = User.objects.get(id=id)
+        user=User.objects.get(id=id)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        outfit_list = Outfit_Specific.objects.filter(id=id).order_by('count')
+        outfit_list=Outfit_Specific.objects.filter(id=id).order_by('count')
         # best_worn = sorted(outfit_list, key=(lambda x: x['count']))
-        serializer = OutfitSerializer(outfit_list[:4], many=True)
+        serializer=OutfitSerializer(outfit_list[:4], many=True)
         return Response(serializer.data)
 # @ api_view(['GET','POST'])
 # @ permission_classes([IsAuthenticated | OwnerPermission])
