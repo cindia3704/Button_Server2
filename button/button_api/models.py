@@ -267,8 +267,8 @@ class Friend(models.Model):
     frienduser = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="friend_user", null=True)
     accepted = models.BooleanField(default=False)
-    timestamp = models.DateTimeField(
-        auto_created=True, default=datetime.date.today())
+    # timestamp = models.DateTimeField(
+    #     auto_created=True, default=datetime.date.today())
 
     # @classmethod
     # def make_friend(cls, current_user, new_friend):

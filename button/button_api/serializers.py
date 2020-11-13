@@ -89,7 +89,7 @@ class CalendarSerializer(serializers.ModelSerializer):
 class Friend_Serializer(serializers.ModelSerializer):
     class Meta:
         model = Friend
-        fields = ('user', 'frienduser', 'accepted', 'timestamp')
+        fields = ('user', 'frienduser', 'accepted')
 
 
 class KNN_Serializer(serializers.ModelSerializer):

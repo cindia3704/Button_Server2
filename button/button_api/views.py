@@ -42,6 +42,12 @@ import datetime
 # from .polyvore import run_inference
 # from .polyvore.run_inference import extract_features
 import json
+<<<<<<< HEAD
+=======
+import os
+import jsonpickle
+from json import JSONEncoder
+>>>>>>> 39a63b3... change json send to ml
 # from .. import model
 # from .. import polyvore
 # from .. import data
@@ -606,6 +612,7 @@ def cloth_list(request, id):
             # for s in request.data.get("season"):
             #     se_.append(s)
             print(se_)
+            jsonpickle.encode(se_)
             send_data = {
                 "id": id,
                 "photo": img_path,
@@ -1113,6 +1120,7 @@ def send_friendRequest(request, id, userEmail):
     except User.DoesNotExist:
         return Response({'email': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
+        print("posttttt")
         if not Friend.objects.filter(user=User.objects.get(id=id), frienduser=reciever).exists():
             new_friend = Friend()
             new_friend.user = User.objects.get(id=id)
@@ -1167,7 +1175,7 @@ def get_friendRequest(request, id):
 def accept_friendRequest(request, id, friendID):
     try:
         req = Friend.objects.get(
-            user=user, accepted=False, frienduser=User.objects.get(id=friendID))
+            user=User.objects.get(id=id), accepted=False, frienduser=User.objects.get(id=friendID))
     except Friend.DoesNotExist:
         return Response({'response': 'friendRequest not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
