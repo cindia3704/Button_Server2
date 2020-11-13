@@ -730,18 +730,6 @@ def find_password(request, userEmail):
         return Response({'response': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# #@lru_cache()
-# def logo_data():
-#     filename = os.path.join("", "media",
-#                             # TODO :: change this path to DJnago MEDIA dir
-#                             str("logo") + ".jpg")
-
-#     with open(filename, 'rb') as f:
-#         logo_data = f.read()
-#     # logo = MIMEImage(logo_data)
-#     # logo.add_header('Content-ID', '<logo>')
-#     return logo
-
 @ api_view(['POST'])
 @ permission_classes([FriendListPermission | OwnerPermission])
 def outfit_cloth_add(request, id, outfitID, clothID):
@@ -1157,6 +1145,45 @@ def send_friendRequest(request, id, userEmail):
             return Response({'email': 'already friend'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'email': 'ERROR'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@ api_view(['GET'])
+@ permission_classes((IsAuthenticated, OwnerPermission))
+def get_friendRequest(request, id):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response({'response': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        req = Friend.objects.filter(user=user, accepted=False)
+        serializer = Friend_Serializer(req, many=True)
+        print(req)
+        print(serializer.data)
+        return Response(serializer.data)
+
+
+@ api_view(['POST', 'DELETE'])
+@ permission_classes((IsAuthenticated, OwnerPermission))
+def accept_friendRequest(request, id, friendID):
+    try:
+        req = Friend.objects.get(
+            user=user, accepted=False, frienduser=User.objects.get(id=friendID))
+    except Friend.DoesNotExist:
+        return Response({'response': 'friendRequest not found'}, status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'POST':
+        if not req.accepted:
+            req.accepted = True
+            req.save()
+            new_friend = Friend()
+            new_friend.user = User.objects.get(id=friendID)
+            new_friend.frienduser = User.objects.get(id=id)
+            new_friend.accepted = True
+            new_friend.save()
+        return Response({'friend': 'Successfully added'}, status=status.HTTP_201_CREATED)
+    return Response({'friend': 'ERROR'}, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'DELETE':
+        req.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class VerifyFriendRequest(views.APIView):

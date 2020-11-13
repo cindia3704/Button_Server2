@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password, getCalendar_specific_date, getCalendar_all, saveToCalendar, change_Outfit_Calendar, cloth_list_season, outfit_stats_best5, outfit_stats_worst5, getCalendar_month, week_recommendation, outfit_list_friend
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password, getCalendar_specific_date, getCalendar_all, saveToCalendar, change_Outfit_Calendar, cloth_list_season, outfit_stats_best5, outfit_stats_worst5, getCalendar_month, week_recommendation, outfit_list_friend, get_friendRequest, accept_friendRequest
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
@@ -95,7 +95,10 @@ urlpatterns = [
     path('<int:id>/addfriend/<userEmail>/', views.send_friendRequest),
     # 친구 이메일 인증
     path('verify-friend/', views.VerifyFriendRequest.as_view(), name="verify-friend"),
-
+    # 친구요청 보기(GET)
+    path('<int:id>/friendrequest/', views.get_friendRequest),
+    # 친구수락 또는 요청 삭제
+    path('<int:id>/friendrequest/<int:friendID>/', views.accept_friendRequest),
     # 캘린더에 추가하기
     path('addToCalendar/<int:id>/<int:outfitID>/<int:year>/<int:month>/<int:day>/',
          views.saveToCalendar),
