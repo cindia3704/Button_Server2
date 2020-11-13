@@ -1083,7 +1083,7 @@ def specific_friend(request, id, friendId):
     if request.method == 'GET':
         serializer = Friend_Serializer(friendspecific)
         return Response(serializer.data)
-    elif request.method == 'DELETE':
+    if request.method == 'DELETE':
         friendspecific.delete()
         friend2 = Friend.objects.get(
             user=friend, frienduser=user, accepted=True)
@@ -1181,7 +1181,7 @@ def accept_friendRequest(request, id, friendID):
             new_friend.save()
         return Response({'friend': 'Successfully added'}, status=status.HTTP_201_CREATED)
     return Response({'friend': 'ERROR'}, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
+    if request.method == 'DELETE':
         req.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
