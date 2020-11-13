@@ -172,17 +172,38 @@ def run_rec_algo(id, style, season):
         print(rand_cloth)
         bi_lstm_input = rand_cloth.get_photo()
         bi_data = {}
-        bi_data["bi_lstm_input"] = Cloth_SpecificSerializer(
-            Cloth_Specific.objects.get(photo=bi_lstm_input)).data
+        clo_serializer = Cloth_SpecificSerializer(
+            Cloth_Specific.objects.get(photo=bi_lstm_input))
+        saved_object = clo_serializer.instance
+        img_path = saved_object.photo.path
+        # bi_data["bi_lstm_input"] = Cloth_SpecificSerializer(
+        #     Cloth_Specific.objects.get(photo=bi_lstm_input)).data
 
         bi_data["id"] = id
         bi_data["style"] = style
         bi_data["season"] = season
+        bi_data["photo"] = img_path
         print("bi_data:")
         print(bi_data)
+        #  send_data = {
+        #         "id": id,
+        #         "bi_lstem_input":
+
+        #         "style": style,
+        #         # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
+        #         "season": season
+        #     }
+        print("sending")
+        print(bi_data)
+        r = requests.post(
+            'http://141.223.121.163:9999/getSet/', json=bi_data)
+        print(r)
         # bi_lstm_output = set_generation(bi_data)
         # bi_lstm_output = ["121.jpg", "56.jpg", "442.jpg", "395.jpg"]
+        bi_lstm_output = r.copy()
         bi_lstm_result = []
+        print("output of bi_lstm")
+        print(bi_lstm_output)
         for cloth_result in bi_lstm_output:
             print(cloth_result)
             bi_lstm_result.append(
@@ -197,6 +218,7 @@ def run_rec_algo(id, style, season):
             else:
                 ret_result = True
         else:
+            print("DRESS")
             result = is_valid_outfit_dress(
                 bi_lstm_result[::-1], id, rand_cloth, season)
             print(ret_result)
@@ -543,6 +565,7 @@ def cloth_list(request, id):
         closet = Cloth_Specific.objects.filter(id=id)
         serializer = Cloth_SpecificSerializer(closet, many=True)
         print(closet)
+        print(serializer.data)
         return Response(serializer.data)
 
     # POST부분 authentication 추가!!!
@@ -563,11 +586,11 @@ def cloth_list(request, id):
             saved_object = serializer.instance
             img_path = saved_object.photo.path
             # print(request.data['season'])
-            print(serializer.data['season'])
+            print(serializer.data.get('season'))
             # s = serializer.data['season']
             # sa = s.copy()
             # print(sa)
-            se_ = []
+            se_ = serializer.data.get('season')
             style = serializer.data.get('style')
             print(style)
 
