@@ -881,6 +881,21 @@ def cloth_detail(request, id, clothID):
         serializer = Cloth_SpecificSerializer(cloth, data=request.data)
         if serializer.is_valid():
             serializer.save()
+            saved_object = serializer.instance
+            img_path = saved_object.photo.path
+            se_ = serializer.data.get('season')
+            send_data = {
+                "id": id,
+                "photo": img_path,
+                "season": se_
+                # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
+                # "data": serializer.data
+            }
+            print(send_data)
+            encoded = jsonpickle.encode(send_data)
+            r = requests.post(
+                'http://141.223.121.163:9999/changeCloth/', json=encoded)
+            print(r)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'PATCH':
@@ -889,14 +904,18 @@ def cloth_detail(request, id, clothID):
             serializer.save()
             saved_object = serializer.instance
             img_path = saved_object.photo.path
+            se_ = serializer.data.get('season')
             send_data = {
+                "id": id,
                 "photo": img_path,
+                "season": se_
                 # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
-                "data": serializer.data
+                # "data": serializer.data
             }
             print(send_data)
+            encoded = jsonpickle.encode(send_data)
             r = requests.post(
-                'http://141.223.121.163:9999/changeCloth/', json=send_data)
+                'http://141.223.121.163:9999/changeCloth/', json=encoded)
             print(r)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -910,15 +929,18 @@ def cloth_detail(request, id, clothID):
         serializer = Cloth_SpecificSerializer(cloth, data=request.data)
         saved_object = serializer.instance
         img_path = saved_object.photo.path
+        se_ = serializer.data.get('season')
         send_data = {
+            "id": id,
             "photo": img_path,
+            "season": se_
             # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
-            "data": serializer.data
+            # "data": serializer.data
         }
-
         print(send_data)
+        encoded = jsonpickle.encode(send_data)
         r = requests.post(
-            'http://141.223.121.163:9999/deleteCloth/', json=send_data)
+            'http://141.223.121.163:9999/deleteCloth/', json=encoded)
         print(r)
 
         cloth.delete()
