@@ -612,7 +612,7 @@ def cloth_list(request, id):
             # for s in request.data.get("season"):
             #     se_.append(s)
             print(se_)
-            jsonpickle.encode(se_)
+            # jsonpickle.encode(se_)
             send_data = {
                 "id": id,
                 "photo": img_path,
@@ -620,6 +620,8 @@ def cloth_list(request, id):
                 "season": se_
             }
             print("sending")
+            print(send_data)
+            jsonpickle.encode(send_data)
             print(send_data)
             r = requests.post(
                 'http://141.223.121.163:9999/postCloth/', json=send_data)
