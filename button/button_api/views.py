@@ -188,7 +188,7 @@ def run_rec_algo(id, style, season):
         bi_data["id"] = id
         bi_data["style"] = style
         bi_data["season"] = season
-        bi_data["photo"] = img_path
+        bi_data["bi_lstm_input"] = img_path
         print("bi_data:")
         print(bi_data)
         #  send_data = {
@@ -201,12 +201,13 @@ def run_rec_algo(id, style, season):
         #     }
         print("sending")
         print(bi_data)
+        encoded = jsonpickle.encode(bi_data)
         r = requests.post(
-            'http://141.223.121.163:9999/getSet/', json=bi_data)
+            'http://141.223.121.163:9999/getSet/', json=encoded)
         print(r)
         # bi_lstm_output = set_generation(bi_data)
         # bi_lstm_output = ["121.jpg", "56.jpg", "442.jpg", "395.jpg"]
-        bi_lstm_output = r.copy()
+        bi_lstm_output = r['clothlist']
         bi_lstm_result = []
         print("output of bi_lstm")
         print(bi_lstm_output)
