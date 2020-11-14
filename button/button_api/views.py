@@ -112,13 +112,15 @@ def post_userInput(request):
             print(style_res)
             print("---")
             knn_input.save()
-            # if season=="WINTER" and style_res=="VACANCE":
-            #     style_res="CASUAL"
-            # run_rec_algo(id, style_res, season)
-            # if res_ == "does not exist":
-            #     return Response({"response": "not enough clothes"})
-            # elif res_ == "more clothes":
-            #     return Response({"response": "not enough clothes"})
+            if season == "WINTER" and style_res == "VACANCE":
+                style_res = "CASUAL"
+
+            ret_result = run_rec_algo(id, style_res, season)
+            print(ret_result)
+            if res_ == "does not exist":
+                return Response({"response": "not enough clothes"})
+            elif res_ == "more clothes":
+                return Response({"response": "not enough clothes"})
 
             # ret_result = False
             # while ret_result != True:
@@ -153,9 +155,9 @@ def post_userInput(request):
             #             bi_lstm_result[::-1], id, rand_cloth, season)
             #         print(ret_result)
             #         ret_result = True
-            # ret_serializer = Cloth_SpecificSerializer(result, many=True)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            ret_serializer = Cloth_SpecificSerializer(ret_result, many=True)
+        return Response(ret_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(ret_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
 
