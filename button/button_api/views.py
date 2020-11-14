@@ -621,10 +621,10 @@ def cloth_list(request, id):
             }
             print("sending")
             print(send_data)
-            jsonpickle.encode(send_data)
+            encoded = jsonpickle.encode(send_data)
             print(send_data)
             r = requests.post(
-                'http://141.223.121.163:9999/postCloth/', json=send_data)
+                'http://141.223.121.163:9999/postCloth/', json=encoded)
             print(r)
             # serializer.save()
             # closet_ = Cloth_Specific.objects.filter(id=id)
