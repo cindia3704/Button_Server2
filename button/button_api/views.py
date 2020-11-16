@@ -272,7 +272,7 @@ def run_rec_algo(id, style, season):
         resssss = []
         for rs in real_dic:
             resssss.append(rs.replace(
-                "/home/buttonteam/Button_Server2/button/media/"))
+                "/home/buttonteam/Button_Server2/button/media/", ""))
         print(resssss)
         # print("-----------------------")
         # print(decoded['clothlist'])
