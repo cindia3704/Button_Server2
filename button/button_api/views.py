@@ -268,6 +268,7 @@ def run_rec_algo(id, style, season):
         real_dic = json.loads(resu)
         print(real_dic)
         print(real_dic['clothlist'])
+        print(type(real_dic))
         # print("-----------------------")
         # print(decoded['clothlist'])
         # print(r.headers)
@@ -285,7 +286,7 @@ def run_rec_algo(id, style, season):
         # print(r)
         #bi_lstm_output = set_generation(bi_data)
         #bi_lstm_output = ["121.jpg", "56.jpg", "442.jpg", "395.jpg"]
-        bi_lstm_output = r.text['clothlist']
+        bi_lstm_output = real_dic['clothlist']
         #bi_lstm_output = res
         bi_lstm_result = []
         print("output of bi_lstm")
