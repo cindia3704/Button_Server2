@@ -264,6 +264,7 @@ def run_rec_algo(id, style, season):
         # print("decoded:")
         # print(decoded)
         resu = r.text
+        print(type(resu))
         print(resu[0])
         print(resu['clothlist'])
         # print("-----------------------")
