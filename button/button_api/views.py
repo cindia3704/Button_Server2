@@ -265,8 +265,9 @@ def run_rec_algo(id, style, season):
         # print(decoded)
         resu = r.text
         print(type(resu))
-        print(resu[0])
-        print(resu['clothlist'])
+        real_dic = json.loads(resu)
+        print(real_dic)
+        print(real_dic['clothlist'])
         # print("-----------------------")
         # print(decoded['clothlist'])
         # print(r.headers)
