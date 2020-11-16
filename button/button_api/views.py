@@ -220,6 +220,8 @@ def run_rec_algo(id, style, season):
         encoded = jsonpickle.encode(bi_data)
         r = requests.post(
             'http://141.223.121.163:9999/getSet/', json=encoded)
+        res_=r.data.get('clothlist')
+        print(res_)
         res = r.GET['clothlist']
         print("res:")
         print(res)
