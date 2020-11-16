@@ -176,6 +176,36 @@ def post_userInput(request):
 # knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
 
 
+def rec_set(request):
+    decodedSet = jsonpickle.decode(request.data)
+    print(decodedSet)
+    bi_lstm_output = decodedSet['clothlist']
+    bi_lstm_result = []
+    print("output of bi_lstm")
+    print(bi_lstm_output)
+    for cloth_result in bi_lstm_output:
+        print(cloth_result)
+        bi_lstm_result.append(
+            Cloth_Specific.objects.get(id=id, photo=cloth_result))
+    if rand_cloth.get_category() == "TOP":
+        print("TOP")
+        result = is_valid_outfit_top(
+            bi_lstm_result[::-1], id, rand_cloth, season)
+        print(ret_result)
+        if result == "redo":
+            ret_result = False
+        else:
+            ret_result = True
+    else:
+        print("DRESS")
+        result = is_valid_outfit_dress(
+            bi_lstm_result[::-1], id, rand_cloth, season)
+        print(ret_result)
+        ret_result = True
+    print(result)
+    return result
+
+
 def run_rec_algo(id, style, season):
     ret_result = False
     count = 0
@@ -220,38 +250,41 @@ def run_rec_algo(id, style, season):
         encoded = jsonpickle.encode(bi_data)
         r = requests.post(
             'http://141.223.121.163:9999/getSet/', json=encoded)
-        res_=r.data.get('clothlist')
-        print(res_)
-        res = r.GET['clothlist']
-        print("res:")
-        print(res)
         print(r)
+        # decoded=jsonpickle.decode(r)
+        # res_=r.data.get('clothlist')
+        # print(res_)
+        #res = r.GET['clothlist']
+        # print("res:")
+        # print(res)
+        # print(r)
         # bi_lstm_output = set_generation(bi_data)
         # bi_lstm_output = ["121.jpg", "56.jpg", "442.jpg", "395.jpg"]
         #bi_lstm_output = r.data['clothlist']
-        bi_lstm_output = res
-        bi_lstm_result = []
-        print("output of bi_lstm")
-        print(bi_lstm_output)
-        for cloth_result in bi_lstm_output:
-            print(cloth_result)
-            bi_lstm_result.append(
-                Cloth_Specific.objects.get(id=id, photo=cloth_result))
-        if rand_cloth.get_category() == "TOP":
-            print("TOP")
-            result = is_valid_outfit_top(
-                bi_lstm_result[::-1], id, rand_cloth, season)
-            print(ret_result)
-            if result == "redo":
-                ret_result = False
-            else:
-                ret_result = True
-        else:
-            print("DRESS")
-            result = is_valid_outfit_dress(
-                bi_lstm_result[::-1], id, rand_cloth, season)
-            print(ret_result)
-            ret_result = True
+        # bi_lstm_output = res
+        # bi_lstm_result = []
+        # print("output of bi_lstm")
+        # print(bi_lstm_output)
+        # for cloth_result in bi_lstm_output:
+        #     print(cloth_result)
+        #     bi_lstm_result.append(
+        #         Cloth_Specific.objects.get(id=id, photo=cloth_result))
+        # if rand_cloth.get_category() == "TOP":
+        #     print("TOP")
+        #     result = is_valid_outfit_top(
+        #         bi_lstm_result[::-1], id, rand_cloth, season)
+        #     print(ret_result)
+        #     if result == "redo":
+        #         ret_result = False
+        #     else:
+        #         ret_result = True
+        # else:
+        #     print("DRESS")
+        #     result = is_valid_outfit_dress(
+        #         bi_lstm_result[::-1], id, rand_cloth, season)
+        #     print(ret_result)
+        #     ret_result = True
+    print("hi")
     return result
 
 
