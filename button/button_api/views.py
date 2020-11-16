@@ -257,18 +257,19 @@ def run_rec_algo(id, style, season):
             'http://141.223.121.163:9999/getSet/', json=encoded)
         print(r)
         print(r.text)
-        decoded = jsonpickle.decode(r)
-        print("decoded:")
-        print(decoded)
-        print("-----------------------")
-        print(decoded['clothlist'])
-        print(r.headers)
-        print(r.content)
-        print(r.content['clothlist'])
-        print(r.headers.get('clothlist'))
-        print(r.json)
-        print(r.json['clothlist'])
-        decoded = jsonpickle.decode(r)
+        print(r.text['clothlist'])
+        #decoded = jsonpickle.decode(r)
+        # print("decoded:")
+        # print(decoded)
+        # print("-----------------------")
+        # print(decoded['clothlist'])
+        # print(r.headers)
+        # print(r.content)
+        # print(r.content['clothlist'])
+        # print(r.headers.get('clothlist'))
+        # print(r.json)
+        # print(r.json['clothlist'])
+        # decoded = jsonpickle.decode(r)
         # res_=r.data.get('clothlist')
         # print(res_)
         #res = r.GET['clothlist']
@@ -277,7 +278,7 @@ def run_rec_algo(id, style, season):
         # print(r)
         #bi_lstm_output = set_generation(bi_data)
         #bi_lstm_output = ["121.jpg", "56.jpg", "442.jpg", "395.jpg"]
-        bi_lstm_output = r.data['clothlist']
+        bi_lstm_output = r.text['clothlist']
         #bi_lstm_output = res
         bi_lstm_result = []
         print("output of bi_lstm")
