@@ -269,6 +269,11 @@ def run_rec_algo(id, style, season):
         print(real_dic)
         print(real_dic['clothlist'])
         print(type(real_dic))
+        resssss = []
+        for rs in real_dic:
+            resssss.append(rs.replace(
+                "/home/buttonteam/Button_Server2/button/media/"))
+        print(resssss)
         # print("-----------------------")
         # print(decoded['clothlist'])
         # print(r.headers)
@@ -286,7 +291,7 @@ def run_rec_algo(id, style, season):
         # print(r)
         #bi_lstm_output = set_generation(bi_data)
         #bi_lstm_output = ["121.jpg", "56.jpg", "442.jpg", "395.jpg"]
-        bi_lstm_output = real_dic['clothlist']
+        bi_lstm_output = resssss.copy()
         #bi_lstm_output = res
         bi_lstm_result = []
         print("output of bi_lstm")
