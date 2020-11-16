@@ -258,6 +258,8 @@ def run_rec_algo(id, style, season):
         print(r)
         print(r.text)
         print(r.headers)
+        print(r.content)
+        print(r.content['clothlist'])
         print(r.headers.get('clothlist'))
         print(r.json)
         print(r.json['clothlist'])
