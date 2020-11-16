@@ -256,7 +256,8 @@ def run_rec_algo(id, style, season):
         r = requests.get(
             'http://141.223.121.163:9999/getSet/', json=encoded)
         print(r)
-        print(r.text)
+        print(r.json)
+        print(r.json['clothlist'])
         # decoded=jsonpickle.decode(r)
         # res_=r.data.get('clothlist')
         # print(res_)
