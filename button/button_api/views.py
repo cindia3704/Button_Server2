@@ -177,8 +177,12 @@ def post_userInput(request):
 
 
 def rec_set(request):
+    print("inside rec_set")
     decodedSet = jsonpickle.decode(request.data)
     print(decodedSet)
+    rand_cloth = decodedSet['rand_cloth']
+    id = decodedSet['id']
+    season = decodedSet['season']
     bi_lstm_output = decodedSet['clothlist']
     bi_lstm_result = []
     print("output of bi_lstm")
