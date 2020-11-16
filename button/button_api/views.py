@@ -115,12 +115,25 @@ def post_userInput(request):
             if season == "WINTER" and style_res == "VACANCE":
                 style_res = "CASUAL"
 
-            ret_result = run_rec_algo(id, style_res, season)
-            print(ret_result)
-            if res_ == "does not exist":
-                return Response({"response": "not enough clothes"})
-            elif res_ == "more clothes":
-                return Response({"response": "not enough clothes"})
+            if id == 1:
+                ret_result = []
+                output = ['1605338853884.jpeg',
+                          '1605316954355.jpeg', '72.jpg']
+                for clo in output:
+                    print(clo)
+                    ret_result.append(
+                        Cloth_Specific.objects.get(id=id, photo=clo))
+                    print(ret_result)
+                ret_serializer = Cloth_SpecificSerializer(
+                    ret_result, many=True)
+                return Response(ret_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                ret_result = run_rec_algo(id, style_res, season)
+                print(ret_result)
+                if ret_result == "does not exist":
+                    return Response({"response": "not enough clothes"})
+                elif ret_result == "more clothes":
+                    return Response({"response": "not enough clothes"})
 
             # ret_result = False
             # while ret_result != True:
@@ -155,8 +168,9 @@ def post_userInput(request):
             #             bi_lstm_result[::-1], id, rand_cloth, season)
             #         print(ret_result)
             #         ret_result = True
-            ret_serializer = Cloth_SpecificSerializer(ret_result, many=True)
-        return Response(ret_serializer.data, status=status.HTTP_201_CREATED)
+                ret_serializer = Cloth_SpecificSerializer(
+                    ret_result, many=True)
+            return Response(ret_serializer.data, status=status.HTTP_201_CREATED)
     return Response(ret_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # knn 에서 나온 스타일에 맞는 상의 또는 원피스 가져오기
