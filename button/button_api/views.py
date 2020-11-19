@@ -1015,6 +1015,7 @@ def cloth_detail(request, id, clothID):
 
         serializer = Cloth_SpecificSerializer(cloth, data=request.data)
         if serializer.is_valid():
+            print("valid")
             saved_object = serializer.instance
             img_path = saved_object.photo.path
             se_ = serializer.data.get('season')
@@ -1030,7 +1031,8 @@ def cloth_detail(request, id, clothID):
             r = requests.post(
                 'http://141.223.121.163:9999/deleteCloth/', json=encoded)
             print(r)
-
+            print("cloth:")
+            print(cloth)
             cloth.delete()
         # outfitIDS = cloth.get_outfit()
         # print(outfitIDS)
