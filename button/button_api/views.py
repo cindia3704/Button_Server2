@@ -614,13 +614,14 @@ def user_detail_change(request, id):
     if user_personal.id != user.id:
         return Response({'response': "You don't have permission for access!"})
 
-    elif request.method == 'PATCH':
+    if request.method == 'PATCH':
         serializer = User_Serializer(user_personal, data=request.data)
         if serializer.is_valid():
             serializer.save()
             user_personal.save()
+            print("success in patch")
             # return Response(serializer.data)
-            return Response(status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
