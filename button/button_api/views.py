@@ -1014,23 +1014,24 @@ def cloth_detail(request, id, clothID):
             out.delete()
 
         serializer = Cloth_SpecificSerializer(cloth, data=request.data)
-        saved_object = serializer.instance
-        img_path = saved_object.photo.path
-        se_ = serializer.data.get('season')
-        send_data = {
-            "id": id,
-            "photo": img_path,
-            "season": se_
-            # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
-            # "data": serializer.data
-        }
-        print(send_data)
-        encoded = jsonpickle.encode(send_data)
-        r = requests.post(
-            'http://141.223.121.163:9999/deleteCloth/', json=encoded)
-        print(r)
+        if serializer.is_valid():
+            saved_object = serializer.instance
+            img_path = saved_object.photo.path
+            se_ = serializer.data.get('season')
+            send_data = {
+                "id": id,
+                "photo": img_path,
+                "season": se_
+                # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
+                # "data": serializer.data
+            }
+            print(send_data)
+            encoded = jsonpickle.encode(send_data)
+            r = requests.post(
+                'http://141.223.121.163:9999/deleteCloth/', json=encoded)
+            print(r)
 
-        cloth.delete()
+            cloth.delete()
         # outfitIDS = cloth.get_outfit()
         # print(outfitIDS)
         # #outfits =[]
@@ -1041,6 +1042,7 @@ def cloth_detail(request, id, clothID):
 
         # for out in outfits:
         #     out.delete()
+            return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
