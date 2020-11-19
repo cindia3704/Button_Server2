@@ -1013,7 +1013,7 @@ def cloth_detail(request, id, clothID):
         for out in outfits:
             out.delete()
 
-        serializer = Cloth_SpecificSerializer(cloth, data=request.data)
+        serializer = Cloth_SpecificSerializer(cloth)
         print(serializer.is_valid())
         if serializer.is_valid():
             print("valid")
