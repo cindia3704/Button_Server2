@@ -631,6 +631,7 @@ def user_detail_change(request, id):
             user_personal, data=request.data, partial=True)
         print("request.data")
         print(request.data)
+        print(serializer.data)
         print(serializer.is_valid())
         if serializer.is_valid():
             serializer.save()
@@ -638,7 +639,8 @@ def user_detail_change(request, id):
             print("success in patch")
             # return Response(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @ api_view(['DELETE'])
