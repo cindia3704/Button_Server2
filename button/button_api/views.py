@@ -1016,7 +1016,7 @@ def cloth_detail(request, id, clothID):
             out.delete()
         print("request.data")
         print(request.data)
-        serializer = Cloth_SpecificSerializer(cloth, data=request.data)
+        serializer = Cloth_SpecificSerializer(cloth, many=True)
         print(serializer.is_valid())
         if serializer.is_valid():
             print("valid")
