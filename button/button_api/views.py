@@ -1301,7 +1301,7 @@ def get_friendRequest(request, id):
     except User.DoesNotExist:
         return Response({'response': 'user not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        req = Friend.objects.filter(user=user, accepted=False)
+        req = Friend.objects.filter(frienduser=user, accepted=False)
         serializer = Friend_Serializer(req, many=True)
         print(req)
         print(serializer.data)
