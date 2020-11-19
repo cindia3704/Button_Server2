@@ -586,7 +586,7 @@ def user_list(request):
         return Response(serializer.data)
 
 
-@ api_view(['GET'])
+@ api_view(['GET', 'PATCH'])
 @ permission_classes([FriendListPermission | OwnerPermission])
 def user_detail(request, id):
     try:
@@ -599,6 +599,18 @@ def user_detail(request, id):
     if request.method == 'GET':
         serializer = User_Serializer(user_personal)
         return Response(serializer.data)
+    if request.method == 'PATCH':
+        serializer = User_Serializer(
+            user_personal, data=request.data, partial=True)
+        print("request.data")
+        print(request.data)
+        print(serializer.is_valid())
+        if serializer.is_valid():
+            serializer.save()
+            # user_personal.save()
+            print("success in patch")
+            # return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @ api_view(['PATCH'])
@@ -615,13 +627,14 @@ def user_detail_change(request, id):
         return Response({'response': "You don't have permission for access!"})
 
     if request.method == 'PATCH':
-        serializer = User_Serializer(user_personal, data=request.data)
+        serializer = User_Serializer(
+            user_personal, data=request.data, partial=True)
         print("request.data")
         print(request.data)
         print(serializer.is_valid())
         if serializer.is_valid():
             serializer.save()
-            user_personal.save()
+            # user_personal.save()
             print("success in patch")
             # return Response(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
