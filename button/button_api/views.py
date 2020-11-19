@@ -617,8 +617,8 @@ def user_detail_change(request, id):
     elif request.method == 'PATCH':
         serializer = User_Serializer(user_personal, data=request.data)
         if serializer.is_valid():
-
             serializer.save()
+            user_personal.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
