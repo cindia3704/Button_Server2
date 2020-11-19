@@ -587,7 +587,7 @@ def user_list(request):
 
 
 @ api_view(['GET', 'PATCH'])
-@ permission_classes([FriendListPermission | OwnerPermission])
+@ permission_classes([FriendListPermission | OwnerPermission | IsAuthenticated])
 def user_detail(request, id):
     try:
         user_personal = User.objects.get(id=id)
