@@ -629,18 +629,17 @@ def user_detail_change(request, id):
     if request.method == 'PATCH':
         serializer = User_Serializer(
             user_personal, data=request.data, partial=True)
+        print(user_personal)
         print("request.data")
         print(request.data)
-        print(serializer.data)
         print(serializer.is_valid())
         if serializer.is_valid():
             serializer.save()
             # user_personal.save()
             print("success in patch")
             # return Response(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @ api_view(['DELETE'])
