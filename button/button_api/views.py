@@ -965,6 +965,8 @@ def cloth_detail(request, id, clothID):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
+        print("PUT request.data")
+        print(request.data)
         serializer = Cloth_SpecificSerializer(cloth, data=request.data)
         if serializer.is_valid():
             serializer.save()
