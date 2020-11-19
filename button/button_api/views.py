@@ -616,6 +616,9 @@ def user_detail_change(request, id):
 
     if request.method == 'PATCH':
         serializer = User_Serializer(user_personal, data=request.data)
+        print("request.data")
+        print(request.data)
+        print(serializer.is_valid())
         if serializer.is_valid():
             serializer.save()
             user_personal.save()
