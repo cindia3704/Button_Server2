@@ -1313,7 +1313,7 @@ def get_friendRequest(request, id):
 def accept_friendRequest(request, id, friendID):
     try:
         req = Friend.objects.get(
-            user=User.objects.get(id=id), accepted=False, frienduser=User.objects.get(id=friendID))
+            frienduser=User.objects.get(id=id), accepted=False, user=User.objects.get(id=friendID))
     except Friend.DoesNotExist:
         return Response({'response': 'friendRequest not found'}, status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
