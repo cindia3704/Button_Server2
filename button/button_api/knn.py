@@ -67,7 +67,7 @@ def knn_results(place1, place2, event1, event2, people1, people2, mood):
     # data_xy = df_xy.values
 
     target = [place1, place2, event1, event2, people1, people2, mood]
-    k = 5
+    k = 3
     print(target)
     dataset, class_target, class_z = data_set(target)
     class_result = classify(data_xy, class_target, class_z, k)
