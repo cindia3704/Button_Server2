@@ -71,6 +71,7 @@ def knn_results(place1, place2, event1, event2, people1, people2, mood):
     print(target)
     dataset, class_target, class_z = data_set(target)
     class_result = classify(data_xy, class_target, class_z, k)
+    print(get_max_key(class_result))
     return style_header[get_max_key(class_result)-1]
 
 
