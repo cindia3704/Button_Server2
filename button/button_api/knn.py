@@ -11,7 +11,7 @@ df_z = np.array(data["style"])
 df_xy = data[["place1", "place2", "event1",
               "event2", "people1", "people2", "mood"]]
 style_header = ["FORMAL", "SEMI-FORMAL",
-                "CASUAL", "OUTDOOR", "VACANCE"]
+                "CASUAL", "FREE-STYLE", "OUTDOOR", "VACANCE"]
 data_xy = df_xy.values
 
 # place1 = int(input('Place 1(1~4):'))
