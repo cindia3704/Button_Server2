@@ -1488,9 +1488,9 @@ def getCalendar_month(request, id, year, month):
 
     if request.method == 'GET':
         month_ = str(month)
-        if month_ == "1" or month_ == "2" or month_ == "3" or month_ == "4" or month_ == "5" or month_ == "6" or month_ == "7" or month_ == "8" or month_ == "9":
+        if str(month) == "1" or str(month) == "2" or str(month) == "3" or str(month) == "4" or str(month) == "5" or str(month) == "6" or str(month) == "7" or str(month) == "8" or str(month) == "9":
             month_ = "0"+str(month)
-        date__ = str(year)+"-"+str(month)+"-"
+        date__ = str(year)+"-"+str(month_)+"-"
         print("__date__")
         print(date__)
         calendar = Calendar_Specific.objects.filter(id=id)
