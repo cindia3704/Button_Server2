@@ -1492,9 +1492,13 @@ def getCalendar_month(request, id, year, month):
             month_ = "0"+str(month)
         date__ = str(year)+"-"+str(month)+"-"
         calendar = Calendar_Specific.objects.filter(id=id)
+        print("calendar")
+        print(calendar)
         calendar__ = []
         for cal in calendar:
             datee = str(cal.get_date())
+            print("datee")
+            print(datee)
             if date__ in datee:
                 calendar__.append(cal)
 
