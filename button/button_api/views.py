@@ -1491,6 +1491,8 @@ def getCalendar_month(request, id, year, month):
         if month < 10:
             month_ = "0"+str(month)
         date__ = str(year)+"-"+str(month)+"-"
+        print("__date__")
+        print(date__)
         calendar = Calendar_Specific.objects.filter(id=id)
         print("calendar")
         print(calendar)
@@ -1501,6 +1503,7 @@ def getCalendar_month(request, id, year, month):
             print(datee)
             if date__ in datee:
                 calendar__.append(cal)
+                print("add")
 
         print(calendar__)
         # if calendar.:
