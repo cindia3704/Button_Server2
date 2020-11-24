@@ -196,7 +196,7 @@ def rec_set(request):
         print("TOP")
         result = is_valid_outfit_top(
             bi_lstm_result[::-1], id, rand_cloth, season)
-        print(ret_result)
+        # print(ret_result)
         if result == "redo":
             ret_result = False
         else:
@@ -218,6 +218,7 @@ def run_rec_algo(id, style, season):
         print("count:"+str(count))
         count = count+1
         if count == 10 and ret_result == False:
+            print("moreeee CLOTHES!!!")
             return "more clothes"
             # return Response({"response": "not enough clothes"})
         print("season: "+str(season)+"    style: "+str(style))
