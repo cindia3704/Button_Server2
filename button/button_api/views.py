@@ -1488,7 +1488,7 @@ def getCalendar_month(request, id, year, month):
 
     if request.method == 'GET':
         month_ = str(month)
-        if month_ < 10:
+        if int(month_) < 10:
             month_ = "0"+str(month)
         date__ = str(year)+"-"+str(month)+"-"
         print("__date__")
