@@ -217,7 +217,7 @@ def run_rec_algo(id, style, season):
     while ret_result != True:
         print("count:"+str(count))
         count = count+1
-        if count == 10 and ret_result == False:
+        if count == 15 and ret_result == False:
             print("moreeee CLOTHES!!!")
             return "more clothes"
             # return Response({"response": "not enough clothes"})
