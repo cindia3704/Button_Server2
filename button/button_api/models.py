@@ -220,7 +220,7 @@ class Calendar_Specific(models.Model):
                                   verbose_name="outfitID",
                                   unique=True)
     date = models.DateField(
-        verbose_name='date Last Worn', default=datetime.date.today(), unique=True, null=True)
+        verbose_name='date Last Worn', default=datetime.date.today(), null=True)
 
     diary = models.TextField(verbose_name='diary',
                              max_length=500, null=True, blank=True)
