@@ -269,6 +269,7 @@ def run_rec_algo(id, style, season):
         real_dic = json.loads(resu)
         print(real_dic)
         print(real_dic['clothlist'])
+        print("____")
         print(type(real_dic))
         resssss = []
         for rs in real_dic['clothlist']:
@@ -1170,7 +1171,7 @@ def outfit_change(request, id, outfitID):
         serializer = OutfitSerializer(outfit, data=request.data)
         if serializer.is_valid():
             if outfit.get_outfitby() != id and outfit.get_owner() != id:
-                return Response({"response": "cannot delete cloth"})
+                return Response({"response": "cannot modify cloth"})
             else:
                 serializer.save()
                 return Response(serializer.data)
