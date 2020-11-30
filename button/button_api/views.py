@@ -270,17 +270,17 @@ def run_rec_algo(id, style, season):
         print(real_dic)
         print(real_dic['clothlist'])
         resssss = []
-        if(real_dic['clothlist']==None):
+        if(real_dic['clothlist'] == None):
             pass
-        
+
         else:
             print("____")
             print(type(real_dic))
-        
+
             for rs in real_dic['clothlist']:
                 resssss.append(rs.replace(
                     "/home/buttonteam/Button_Server2/button/media/", ""))
-          
+
         print(resssss)
         # print("-----------------------")
         # print(decoded['clothlist'])
@@ -307,7 +307,7 @@ def run_rec_algo(id, style, season):
         for cloth_result in bi_lstm_output:
             print(cloth_result)
             bi_lstm_result.append(
-                Cloth_Specific.objects.get(id=id, photo=cloth_result))
+                Cloth_Specific.objects.get(photo=cloth_result))
         if rand_cloth.get_category() == "TOP":
             print("TOP")
             result = is_valid_outfit_top(
@@ -1135,6 +1135,19 @@ def outfit_list(request, id):
     if request.method == 'GET':
         outfit_closet = Outfit_Specific.objects.filter(
             id=id, outfitBy=id)
+        serializer = OutfitSerializer(outfit_closet, many=True)
+        return Response(serializer.data)
+
+
+@ api_view(['GET'])
+@ permission_classes([FriendListPermission | OwnerPermission])
+def outfit_list_all(request, id):
+    user = request.user
+    # if id != user.id:
+    #     return Response({'response': "You don't have permission for access!"})
+    if request.method == 'GET':
+        outfit_closet = Outfit_Specific.objects.filter(
+            id=id)
         serializer = OutfitSerializer(outfit_closet, many=True)
         return Response(serializer.data)
 

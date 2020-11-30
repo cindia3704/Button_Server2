@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password, getCalendar_specific_date, getCalendar_all, saveToCalendar, change_Outfit_Calendar, cloth_list_season, outfit_stats_best5, outfit_stats_worst5, getCalendar_month, week_recommendation, outfit_list_friend, get_friendRequest, accept_friendRequest, rec_set
+from .views import user_list, user_detail, cloth_list, cloth_detail, register, findEmail, user_detail_change, user_delete, cloth_category_list, VerifyEmail, saveOutfit, outfit_list, outfit_change, retLoggedUser, VerifyFriendRequest, send_friendRequest, get_friendlist, get_acceped_friendlist, post_userInput, get_knnResult, outfit_cloth_add, outfit_cloth_del, outfit_cloth_change, change_password, find_password, getCalendar_specific_date, getCalendar_all, saveToCalendar, change_Outfit_Calendar, cloth_list_season, outfit_stats_best5, outfit_stats_worst5, getCalendar_month, week_recommendation, outfit_list_friend, get_friendRequest, accept_friendRequest, rec_set, outfit_list_all
 from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 from drf_yasg.views import get_schema_view
@@ -53,6 +53,8 @@ urlpatterns = [
 
     # 직접 코디한거 보기 (GET)
     path('<int:id>/outfit/list/', views.outfit_list),
+
+    path('<int:id>/outfit/alllist/', views.outfit_list_all),
     # 친구가 내꺼 코디한거 GET
     path('<int:id>/outfit/friendlist/', views.outfit_list_friend),
 
