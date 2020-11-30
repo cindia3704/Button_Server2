@@ -269,12 +269,18 @@ def run_rec_algo(id, style, season):
         real_dic = json.loads(resu)
         print(real_dic)
         print(real_dic['clothlist'])
-        print("____")
-        print(type(real_dic))
         resssss = []
-        for rs in real_dic['clothlist']:
-            resssss.append(rs.replace(
-                "/home/buttonteam/Button_Server2/button/media/", ""))
+        if(real_dic['clothlist']==None):
+            pass
+        
+        else:
+            print("____")
+            print(type(real_dic))
+        
+            for rs in real_dic['clothlist']:
+                resssss.append(rs.replace(
+                    "/home/buttonteam/Button_Server2/button/media/", ""))
+          
         print(resssss)
         # print("-----------------------")
         # print(decoded['clothlist'])
