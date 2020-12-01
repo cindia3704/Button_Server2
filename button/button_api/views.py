@@ -1193,7 +1193,7 @@ def outfit_change(request, id, outfitID):
         serializer = OutfitSerializer(outfit, data=request.data)
         if serializer.is_valid():
             print("outfitby: "+str(id)+"   owner:"+str(outfit.get_owner()))
-            if outfit.get_outfitby() != id and outfit.get_owner() != userrr:
+            if outfit.get_outfitby() != userrr and outfit.get_owner() != userrr:
                 return Response({"response": "cannot modify cloth"})
             else:
                 serializer.save()
@@ -1202,13 +1202,13 @@ def outfit_change(request, id, outfitID):
     elif request.method == 'DELETE':
         print("outfitby: "+str(outfit.get_outfitby()) +
               "   owner:"+str(outfit.get_owner())+"   id:"+str(id))
-        if outfit.get_outfitby() != id and outfit.get_owner() != userrr:
+        if outfit.get_outfitby() != userrr and outfit.get_owner() != userrr:
             print("not outfitby and not owner")
             return Response({"response": "cannot delete cloth"})
-        elif outfit.get_outfitby() == id:
-            print("is outfitby")
-            outfit.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        # elif outfit.get_outfitby() == id:
+        #     print("is outfitby")
+        #     outfit.delete()
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             outfit.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
