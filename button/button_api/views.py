@@ -1180,7 +1180,7 @@ def outfit_change(request, id, outfitID):
         return id
     try:
         outfit = Outfit_Specific.objects.get(outfitID=outfitID)
-        userrr = User.objects.get(userEmail=outfit.get_owner())
+        userrr = User.objects.get(id=id)
         # print(request.id)
 
     except Outfit_Specific.DoesNotExist:
