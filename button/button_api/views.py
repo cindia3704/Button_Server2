@@ -1193,7 +1193,7 @@ def outfit_change(request, id, outfitID):
         serializer = OutfitSerializer(outfit, data=request.data)
         if serializer.is_valid():
             print("outfitby: "+str(id)+"   owner:"+str(outfit.get_owner()))
-            if outfit.get_outfitby() != id and outfit.get_owner() != id:
+            if outfit.get_outfitby() != id and outfit.get_owner() != userrr:
                 return Response({"response": "cannot modify cloth"})
             else:
                 serializer.save()
