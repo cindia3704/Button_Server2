@@ -859,17 +859,24 @@ def outfit_cloth_add(request, id, outfitID, clothID):
     try:
         outfit_ = Outfit_Specific.objects.get(outfitID=outfitID)
         cloth = Cloth_Specific.objects.get(clothID=clothID)
+        userrr = User.objects.get(id=id)
     except Outfit_Specific.DoesNotExist:
         # print('outfit not found')
         return Response(status=status.HTTP_404_NOT_FOUND)
     except Cloth_Specific.DoesNotExist:
        # print('cloth not found')
         return Response(status=status.HTTP_404_NOT_FOUND)
+    except User.DoesNotExist:
+       # print('cloth not found')
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'POST':
-        cloth.outfit.add(outfitID)
-        cloth.save()
-    return Response(status=status.HTTP_201_CREATED)
+        if outfit.get_outfitby() != userrr and outfit.get_owner() != userrr:
+            return Response({"response": "cannot modify cloth"})
+        else:
+            cloth.outfit.add(outfitID)
+            cloth.save()
+            return Response(status=status.HTTP_201_CREATED)
 
 
 @ api_view(['DELETE'])
