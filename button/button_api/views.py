@@ -1203,6 +1203,9 @@ def outfit_change(request, id, outfitID):
         print("outfitby: "+str(id)+"   owner:"+str(outfit.get_owner()))
         if outfit.get_outfitby() != id and outfit.get_owner() != userrr:
             return Response({"response": "cannot delete cloth"})
+        else if outfit.get_outfitby() == id:
+            outfit.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             outfit.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
