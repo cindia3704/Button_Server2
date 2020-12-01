@@ -871,7 +871,7 @@ def outfit_cloth_add(request, id, outfitID, clothID):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'POST':
-        if outfit.get_outfitby() != userrr and outfit.get_owner() != userrr:
+        if outfit_.get_outfitby() != userrr and outfit_.get_owner() != userrr:
             return Response({"response": "cannot modify cloth"})
         else:
             cloth.outfit.add(outfitID)
