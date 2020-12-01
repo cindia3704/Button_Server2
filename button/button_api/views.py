@@ -1180,9 +1180,12 @@ def outfit_change(request, id, outfitID):
         return id
     try:
         outfit = Outfit_Specific.objects.get(outfitID=outfitID)
+        userrr = User.objects.get(userEmail=outfit.get_owner())
         # print(request.id)
 
     except Outfit_Specific.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     user = request.user
@@ -1198,7 +1201,7 @@ def outfit_change(request, id, outfitID):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
         print("outfitby: "+str(id)+"   owner:"+str(outfit.get_owner()))
-        if outfit.get_outfitby() != id and outfit.get_owner() != id:
+        if outfit.get_outfitby() != id and outfit.get_owner() != userrr:
             return Response({"response": "cannot delete cloth"})
         else:
             outfit.delete()
