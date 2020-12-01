@@ -1200,10 +1200,13 @@ def outfit_change(request, id, outfitID):
                 return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
-        print("outfitby: "+str(id)+"   owner:"+str(outfit.get_owner()))
+        print("outfitby: "+str(outfit.get_outfitby()) +
+              "   owner:"+str(outfit.get_owner())+"   id:"+str(id))
         if outfit.get_outfitby() != id and outfit.get_owner() != userrr:
+            print("not outfitby and not owner")
             return Response({"response": "cannot delete cloth"})
         elif outfit.get_outfitby() == id:
+            print("is outfitby")
             outfit.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
