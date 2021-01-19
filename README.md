@@ -1,6 +1,7 @@
 # Button_Server2
 안드로이드 어플 'Button'의 메인 서버입니다.    
 This is the main server for an android application called "Button"   
+해당 서버는 Django Rest Framework를 이용하여 구현되었습니다. 
 _______________      
 #### 프로젝트 기능 
    1. 로그인 및 회원가입 
