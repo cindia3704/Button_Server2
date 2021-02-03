@@ -675,12 +675,6 @@ def cloth_list(request, id):
     def get_id():
         return id
     user = request.user
-    # if id != user.id:
-<<<<<<< HEAD
-    # return Response({'response': "You don't have permission for access!"})
-=======
-    #     return Response({'response': "You don't have permission for access!"})
->>>>>>> 391b1f7... change auth for clothlist
     if request.method == 'GET':
         closet = Cloth_Specific.objects.filter(id=id)
         serializer = Cloth_SpecificSerializer(closet, many=True)
@@ -793,14 +787,6 @@ def cloth_list_season(request, id, season):
         serializer = Cloth_SpecificSerializer(clo, many=True)
         print(serializer)
         return Response(serializer.data)
-
-
-# @ api_view(['GET'])
-# @ parser_classes([MultiPartParser])
-# @ permission_classes([FriendListPermission | OwnerPermission])
-# def cloth_list_season(request, id, days_not_worn):
-#     if request.method == 'GET':
-#         closet = Cloth_Specific.objects.filter(id=id)
 
 
 @ api_view(['POST'])
@@ -922,34 +908,7 @@ def outfit_cloth_change(request, id, outfitID, clothID1, clothID2):
 @ api_view(['GET'])
 @ permission_classes([OwnerPermission | FriendListPermission])
 def cloth_category_list(request, id, category):
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     user = request.user
-<<<<<<< HEAD
-<<<<<<< HEAD
-    # if id != user.id:
-=======
-   # if id != user.id:
->>>>>>> 35aa25d... last last
-    # return Response({'response': "You don't have permission for access!"})
-=======
-=======
-    user=request.user
->>>>>>> 6951918... change season field
-=======
-    user = request.user
->>>>>>> 5758d9e... change season field3
-=======
-    user=request.user
->>>>>>> 53e5b62... change season field10
-=======
-    user = request.user
->>>>>>> 891885e... change season field11
-    # if id != user.id:
-    #     return Response({'response': "You don't have permission for access!"})
->>>>>>> 391b1f7... change auth for clothlist
     if request.method == 'GET':
         closet = Cloth_Specific.objects.filter(id=id, category=category)
         serializer = Cloth_SpecificSerializer(closet, many=True)
@@ -964,36 +923,6 @@ def cloth_detail(request, id, clothID):
 
     except Cloth_Specific.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    user = request.user
-<<<<<<< HEAD
-=======
-=======
-    user=request.user
->>>>>>> 6951918... change season field
-=======
-    user = request.user
->>>>>>> 5758d9e... change season field3
-=======
-    user=request.user
->>>>>>> 53e5b62... change season field10
-=======
-    user = request.user
->>>>>>> 891885e... change season field11
-
-<<<<<<< HEAD
->>>>>>> 35aa25d... last last
-    # if id != user:
-    # return Response({'response': "You don't have permission for access!"})
-=======
-    # if id != user:
-    #     return Response({'response': "You don't have permission for access!"})
->>>>>>> 391b1f7... change auth for clothlist
-
     if request.method == 'GET':
         serializer = Cloth_SpecificSerializer(cloth)
         return Response(serializer.data)
@@ -1101,44 +1030,10 @@ def saveOutfit(request, id):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-@api_view(['GET'])
-=======
-# @api_view['POST']
-# def save_friendship(request):
-#      if request.method == 'POST':
-#             serializer = Friend_Serializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# @ api_view(['GET'])
-# def friend_list(request, id):
-#     if request.method == 'GET':
-#         outfit_closet = Outfit_Specific.objects.filter(id=id)
-#         serializer = OutfitSerializer(outfit_closet, many=True)
-#         return Response(serializer.data)
-
-=======
->>>>>>> c7b0972... add outfit check
 @ api_view(['GET'])
-<<<<<<< HEAD
-@ permission_classes([IsAuthenticated | FriendListPermission])
->>>>>>> bcc7d00... add friend and friend permission
-def outfit_list(request, id):
-    user = request.user
-    # if id != user.id:
-    # return Response({'response': "You don't have permission for access!"})
-=======
 @ permission_classes([FriendListPermission | OwnerPermission])
 def outfit_list(request, id):
     user = request.user
-    # if id != user.id:
-    #     return Response({'response': "You don't have permission for access!"})
->>>>>>> 376f70f... correct permissions
     if request.method == 'GET':
         outfit_closet = Outfit_Specific.objects.filter(
             id=id, outfitBy=id)
@@ -1172,16 +1067,8 @@ def outfit_list_friend(request, id):
         return Response(serializer.data)
 
 
-<<<<<<< HEAD
-@api_view(['PATCH', 'DELETE', 'GET'])
-=======
 @ api_view(['PATCH', 'DELETE', 'GET'])
-<<<<<<< HEAD
-@ permission_classes([IsAuthenticated | FriendListPermission])
->>>>>>> bcc7d00... add friend and friend permission
-=======
 @ permission_classes([FriendListPermission | OwnerPermission])
->>>>>>> 376f70f... correct permissions
 def outfit_change(request, id, outfitID):
     def get_id():
         return id
@@ -1577,17 +1464,3 @@ def outfit_stats_worst5(request, id):
         # best_worn = sorted(outfit_list, key=(lambda x: x['count']))
         serializer = OutfitSerializer(outfit_list[:4], many=True)
         return Response(serializer.data)
-# @ api_view(['GET','POST'])
-# @ permission_classes([IsAuthenticated | OwnerPermission])
-# def bi_lstm(request, id):
-#     try:
-#         user = User.objects.get(id=id)
-#     except User.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-
-#     if request.method == 'GET':
-#         calendar = Calendar_Specific.objects.filter(id=id)
-#         # if calendar.:
-#         #     return Response({'calendar': 'no data'}, status=status.HTTP_201_CREATED)
-#         serializer = CalendarSerializer(calendar, many=True)
-#         return Response(serializer.data)
