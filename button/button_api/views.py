@@ -42,16 +42,9 @@ import datetime
 # from .polyvore import run_inference
 # from .polyvore.run_inference import extract_features
 import json
-<<<<<<< HEAD
-=======
 import os
 import jsonpickle
 from json import JSONEncoder
->>>>>>> 39a63b3... change json send to ml
-# from .. import model
-# from .. import polyvore
-# from .. import data
-# from ..polyvore import run_inference, set_generation
 # Create your views here.
 
 
@@ -684,86 +677,26 @@ def cloth_list(request, id):
 
     # POST부분 authentication 추가!!!
     elif request.method == 'POST':
-        # 밑 세줄 지우고 data=request.data로!
-        # photo = request.FILES["photo"]
-        # data = json.loads(request.data['data'])
-        # data["photo"] = photo
-        # serializer = Cloth_SpecificSerializer(data=data)
         serializer = Cloth_SpecificSerializer(data=request.data)
         if serializer.is_valid():
             print(request.data)
-            # da = request.data.get('data')
-            # print(da)
-            # da_season = da[0]
-            # print(da_season)
             serializer.save()
             saved_object = serializer.instance
             img_path = saved_object.photo.path
-            # print(request.data['season'])
             print(serializer.data.get('season'))
-            # s = serializer.data['season']
-            # sa = s.copy()
-            # print(sa)
             se_ = serializer.data.get('season')
             style = serializer.data.get('style')
             print(style)
-
-            # if "HWAN" in da_season:
-            #     se_.append("HWAN")
-            # if "WINTER" in da_season:
-            #     se_.append("WINTER")
-            # if "SUMMER" in da_season:
-            #     se_.append("SUMMER")
-            # cloth_post = Cloth_Specific.objects.get(
-            #     id=id, clothID=request.data["clothID"])
-            # print(request.data.get("season"))
-            # for s in request.data.get("season"):
-            #     se_.append(s)
             print(se_)
-            # jsonpickle.encode(se_)
             send_data = {
                 "id": id,
                 "photo": img_path,
-                # "data": {"id": 3, "season": ["HWAN", "SUMMER"], "category": "TOP", "style": ["CASUAL"]}
                 "season": se_
             }
-            print("sending")
-            print(send_data)
             encoded = jsonpickle.encode(send_data)
             print(send_data)
             r = requests.post(
                 'http://141.223.121.163:9999/postCloth/', json=encoded)
-            print(r)
-            # serializer.save()
-            # closet_ = Cloth_Specific.objects.filter(id=id)
-            # number_ = len(closet_)-1
-            # print(number_)
-            # extract_features(id, serializer.data)
-            print("end extract")
-            # seasons = request.data.get('season')
-            # tf = []
-            # for i in range(0, 4):
-            #     tf.append(False)
-            # if "SPRING" in seasons:
-            #     tf[0] = True
-            # if "SUMMER" in seasons:
-            #     tf[1] = True
-            # if "FALL" in seasons:
-            #     tf[2] = True
-            # if "WINTER" in seasons:
-            #     tf[3] = True
-
-            # if tf[3] == True:
-            #     extract(id, serializer.data, number, "winter")
-            # if tf[1] == True:
-            #     extract(id, serializer.data, number, "summer")
-            # if tf[0] == True or tf[2] == True:
-            #     extract(id, serializer.data, number, "hwan")
-
-            # extract feature!!
-            # closet_=Cloth_Specific.objects.filter(id=id)
-            # serializer_ = Cloth_SpecificSerializer(closet_, many=True)
-            # extract(id,serializer.data,number)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
