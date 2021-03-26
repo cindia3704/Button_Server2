@@ -19,7 +19,7 @@ _______________
    
 #### 팀 구성원:
 * 김지수 [cindia3704](https://github.com/cindia3704/): 팀장, 기획, 백엔드, 딥러닝, 프론트엔드
-* 박지수 [jisoo-o](https://github.com/jisoo-o/): 기획, 딥러닝, 프론트엔드
+* 박지수 [jisoo-o](https://github.com/jisoo-o/): 기획, 딥러닝, 디자인
 * 김수민 [sO-Omin](https://github.com/sO-Omin/): 기획, 프론트엔드
 
    
